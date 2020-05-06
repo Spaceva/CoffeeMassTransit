@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "Local": "Server=localhost;Database=Webinar;User Id=webinar;Password=webinar;"
+  }
+}

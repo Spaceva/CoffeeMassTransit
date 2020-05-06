@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MassTransit" Version="6.2.5" />
+    <PackageReference Include="MassTransit.DapperIntegration" Version="6.2.5" />
+    <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="6.2.5" />
+    <PackageReference Include="MassTransit.Extensions.Logging" Version="5.5.6" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="6.2.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.3" />
+    <PackageReference Include="Serilog" Version="2.9.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
+    <PackageReference Include="Serilog.Enrichers.Context" Version="4.2.0" />
+    <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.1" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.1.3" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="3.0.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    <PackageReference Include="Serilog.Sinks.ElasticSearch" Version="8.0.1" />
+    <PackageReference Include="Serilog.Sinks.Http" Version="5.2.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\WebinarMassTransit.Common\WebinarMassTransit.Common.csproj" />
+    <ProjectReference Include="..\WebinarMassTransit.Contracts\WebinarMassTransit.Contracts.csproj" />
+    <ProjectReference Include="..\WebinarMassTransit.Core\WebinarMassTransit.Core.csproj" />
+    <ProjectReference Include="..\WebinarMassTransit.Messages\WebinarMassTransit.Messages.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="logging.json">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Update="rabbitmq.json">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
+
+</Project>

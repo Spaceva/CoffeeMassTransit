@@ -1,0 +1,43 @@
+﻿@model WebinarMassTransit.Web.OrderViewModel
+@{
+    ViewData["Title"] = "Order your coffee";
+}
+
+@if (ViewBag.OrderSent != null && ViewBag.OrderSent is Guid)
+{
+    <div class="alert alert-success" role="alert">
+        Your order <b>@ViewBag.OrderSent</b> has been sent.
+    </div>
+}
+
+@Html.ValidationSummary()
+
+<form asp-action="">
+    <div class="form-group">
+        <label asp-for="Name">Name</label>
+        @Html.TextBoxFor(m => m.Name, "text", new { placeholder = "Name", @class = "form-control form-control-lg", autocomplete = "off" })
+        <span asp-validation-for="Name"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CoffeeType">Coffee Type</label>
+        @Html.DropDownList("CoffeeType",
+            Html.GetEnumSelectList<WebinarMassTransit.Contracts.CoffeeType>(),
+            "Coffee Type", new { @class = "form-control" })
+        <span asp-validation-for="CoffeeType"></span>
+    </div>
+    <div class="form-check">
+        <input asp-for="WithWhippedCream" type="checkbox" class="form-check-input" /><label asp-for="WithWhippedCream" class="form-check-label">With Whipped Cream ?</label>
+    </div>
+    <div class="form-check">
+        <input asp-for="WithCaramel" type="checkbox" class="form-check-input" /><label asp-for="WithCaramel" class="form-check-label">With Caramel ?</label>
+    </div>
+    <div class="form-check">
+        <input asp-for="WithChocolate" type="checkbox" class="form-check-input" /><label asp-for="WithChocolate" class="form-check-label">With Chocolate ?</label>
+    </div>
+    <div class="form-check">
+        <input asp-for="WithWhiskey" type="checkbox" class="form-check-input" /><label asp-for="WithWhiskey" class="form-check-label">With Whiskey ?!</label>
+    </div>
+    <div>
+        <button type="submit" class="btn btn-primary">Order !</button>
+    </div>
+</form>
