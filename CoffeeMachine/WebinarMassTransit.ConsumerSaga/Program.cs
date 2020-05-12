@@ -33,11 +33,11 @@ namespace WebinarMassTransit.WebinarMassTransit.ConsumerSaga
             services.AddHostedService<BusControlService>();
         }
 
-        private static IBusControl ConfigureRabbitMQ(IServiceProvider serviceProvider)
+        private static IBusControl ConfigureRabbitMQ(IRegistrationContext<IServiceProvider> registrationContext)
         {
             return Bus.Factory.CreateUsingRabbitMq(cfgBus =>
             {
-                var rabbitMQConfigurationOption = serviceProvider.GetService<IOptions<RabbitMQConfiguration>>();
+                var rabbitMQConfigurationOption = registrationContext.Container.GetService<IOptions<RabbitMQConfiguration>>();
                 var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
 
                 cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
@@ -45,7 +45,7 @@ namespace WebinarMassTransit.WebinarMassTransit.ConsumerSaga
                     cfgRabbitMq.Username(rabbitMQConfiguration.Username);
                     cfgRabbitMq.Password(rabbitMQConfiguration.Password);
                 });
-                cfgBus.ConfigureEndpoints(serviceProvider);
+                cfgBus.ConfigureEndpoints(registrationContext);
             });
         }
     }

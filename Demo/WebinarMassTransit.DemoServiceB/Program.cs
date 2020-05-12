@@ -37,11 +37,11 @@ namespace WebinarMassTransit.DemoServiceB
             services.AddHostedService<PublicMessageSpammer>();
         }
 
-        private static IBusControl ConfigureRabbitMQ(IServiceProvider serviceProvider)
+        private static IBusControl ConfigureRabbitMQ(IRegistrationContext<IServiceProvider> registrationContext)
         {
             return Bus.Factory.CreateUsingRabbitMq(cfgBus =>
             {
-                var rabbitMQConfigurationOption = serviceProvider.GetService<IOptions<RabbitMQConfiguration>>();
+                var rabbitMQConfigurationOption = registrationContext.Container.GetService<IOptions<RabbitMQConfiguration>>();
                 var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
 
                 cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
@@ -52,7 +52,7 @@ namespace WebinarMassTransit.DemoServiceB
 
                 cfgBus.ReceiveEndpoint("serviceB", cfgEndpoint =>
                 {
-                    cfgEndpoint.ConfigureConsumers(serviceProvider);
+                    cfgEndpoint.ConfigureConsumers(registrationContext);
                     cfgEndpoint.UseMessageRetry(cfgRetry =>
                     {
                         cfgRetry.Interval(2, TimeSpan.FromMilliseconds(500));

@@ -71,11 +71,11 @@ namespace WebinarMassTransit.Web
             });
         }
 
-        private IBusControl ConfigureRabbitMQ(IServiceProvider serviceProvider)
+        private IBusControl ConfigureRabbitMQ(IRegistrationContext<IServiceProvider> registrationContext)
         {
             return Bus.Factory.CreateUsingRabbitMq(cfgBus =>
             {
-                var rabbitMQConfigurationOption = serviceProvider.GetService<IOptions<RabbitMQConfiguration>>();
+                var rabbitMQConfigurationOption = registrationContext.Container.GetService<IOptions<RabbitMQConfiguration>>();
                 var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
 
                 cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
@@ -87,7 +87,7 @@ namespace WebinarMassTransit.Web
                 cfgBus.ReceiveEndpoint(KebabCaseEndpointNameFormatter.Instance.SanitizeName(nameof(RequestPaymentCommand)),
                                     cfgEndpoint =>
                                     {
-                                        cfgEndpoint.ConfigureConsumer<RequestPaymentCommandConsumer>(serviceProvider);
+                                        cfgEndpoint.ConfigureConsumer<RequestPaymentCommandConsumer>(registrationContext);
                                         cfgEndpoint.UseRetry(cfgRetry =>
                                         {
                                             cfgRetry.Interval(3, TimeSpan.FromSeconds(5));

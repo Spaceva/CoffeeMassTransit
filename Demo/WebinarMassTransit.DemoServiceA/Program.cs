@@ -37,11 +37,11 @@ namespace WebinarMassTransit.DemoServiceA
             services.AddHostedService<StatusChecker>();
         }
 
-        private static IBusControl ConfigureRabbitMQ(IServiceProvider serviceProvider)
+        private static IBusControl ConfigureRabbitMQ(IRegistrationContext<IServiceProvider> registrationContext)
         {
             return Bus.Factory.CreateUsingRabbitMq(cfgBus =>
             {
-                var rabbitMQConfigurationOption = serviceProvider.GetService<IOptions<RabbitMQConfiguration>>();
+                var rabbitMQConfigurationOption = registrationContext.Container.GetService<IOptions<RabbitMQConfiguration>>();
                 var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
 
                 cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
@@ -52,7 +52,7 @@ namespace WebinarMassTransit.DemoServiceA
 
                 cfgBus.ReceiveEndpoint("serviceA", cfgEndpoint =>
                 {
-                    cfgEndpoint.ConfigureConsumers(serviceProvider);
+                    cfgEndpoint.ConfigureConsumers(registrationContext);
                 });
             });
         }

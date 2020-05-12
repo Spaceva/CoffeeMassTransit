@@ -43,11 +43,11 @@ namespace WebinarMassTransit.ToppingManager
             services.AddHostedService<BusControlService>();
         }
 
-        private static IBusControl ConfigureRabbitMQ(IServiceProvider serviceProvider)
+        private static IBusControl ConfigureRabbitMQ(IRegistrationContext<IServiceProvider> registrationContext)
         {
             return Bus.Factory.CreateUsingRabbitMq(cfgBus =>
             {
-                var rabbitMQConfigurationOption = serviceProvider.GetService<IOptions<RabbitMQConfiguration>>();
+                var rabbitMQConfigurationOption = registrationContext.Container.GetService<IOptions<RabbitMQConfiguration>>();
                 var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
 
                 cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
@@ -59,7 +59,7 @@ namespace WebinarMassTransit.ToppingManager
                 cfgBus.ReceiveEndpoint(KebabCaseEndpointNameFormatter.Instance.SanitizeName(nameof(AddToppingsCommand)),
                      cfgEndpoint =>
                      {
-                         cfgEndpoint.ConfigureConsumer<AddToppingsCommandConsumer>(serviceProvider);
+                         cfgEndpoint.ConfigureConsumer<AddToppingsCommandConsumer>(registrationContext);
                          cfgEndpoint.UseRetry(cfgRetry =>
                          {
                              cfgRetry.Interval(3, TimeSpan.FromSeconds(5));

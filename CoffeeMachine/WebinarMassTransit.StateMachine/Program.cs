@@ -38,11 +38,11 @@ namespace WebinarMassTransit.WebinarMassTransit.StateMachine
             services.AddHostedService<BusControlService>();
         }
 
-        private static IBusControl ConfigureRabbitMQ(IServiceProvider serviceProvider)
+        private static IBusControl ConfigureRabbitMQ(IRegistrationContext<IServiceProvider> registrationContext)
         {
             return Bus.Factory.CreateUsingRabbitMq(cfgBus =>
             {
-                var rabbitMQConfigurationOption = serviceProvider.GetService<IOptions<RabbitMQConfiguration>>();
+                var rabbitMQConfigurationOption = registrationContext.Container.GetService<IOptions<RabbitMQConfiguration>>();
                 var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
 
                 cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
@@ -51,7 +51,7 @@ namespace WebinarMassTransit.WebinarMassTransit.StateMachine
                     cfgRabbitMq.Password(rabbitMQConfiguration.Password);
                 });
                 var repository = new InMemorySagaRepository<CoffeeState>();
-                cfgBus.ReceiveEndpoint("state-machine", e => e.StateMachineSaga(serviceProvider.GetService<CoffeeStateMachine>(), repository));
+                cfgBus.ReceiveEndpoint("state-machine", e => e.StateMachineSaga(registrationContext.Container.GetService<CoffeeStateMachine>(), repository));
             });
         }
     }
