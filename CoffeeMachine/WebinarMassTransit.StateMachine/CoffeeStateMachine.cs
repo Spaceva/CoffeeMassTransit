@@ -50,11 +50,11 @@ namespace WebinarMassTransit.StateMachine
                         .SendAsync(addToppingsEndpoint, context => context.Init<AddToppingsCommand>(new { context.Instance.CorrelationId, Toppings = context.Instance.ToppingsRequested.Split(",").Select(t => Enum.Parse<Topping>(t)) }))
                         .TransitionTo(BaseCoffeeOK), x => x
                         .PublishAsync(context => context.Init<CoffeeReadyEvent>(new { context.Instance.CorrelationId }))
-                        .TransitionTo(CoffeeReady)));
+                        .Finalize()));
 
             During(BaseCoffeeOK, When(ToppingsAddedEvent)
-                                .TransitionTo(CoffeeReady)
-                                .PublishAsync(context => context.Init<CoffeeReadyEvent>(new { context.Instance.CorrelationId })));
+                                .PublishAsync(context => context.Init<CoffeeReadyEvent>(new { context.Instance.CorrelationId }))
+                                .Finalize());
         }
 
         public State AwaitingPayment { get; private set; }
