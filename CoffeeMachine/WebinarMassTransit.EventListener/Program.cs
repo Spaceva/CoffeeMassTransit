@@ -31,7 +31,7 @@ namespace WebinarMassTransit.EventListener
             services.Configure<RabbitMQConfiguration>(hostingContext.Configuration.GetSection("RabbitMQ"));
             services.AddMassTransit(cfgGlobal =>
             {
-                cfgGlobal.AddConsumersFromNamespaceContaining<CoffeeReadyEventConsumer>();
+                cfgGlobal.AddConsumersFromNamespaceContaining<OrderSubmittedEventConsumer>();
                 cfgGlobal.AddBus(ConfigureRabbitMQ);
             });
             services.AddHostedService<BusControlService>();
