@@ -50,7 +50,7 @@ namespace WebinarMassTransit.WebinarMassTransit.StateMachine
                     cfgRabbitMq.Username(rabbitMQConfiguration.Username);
                     cfgRabbitMq.Password(rabbitMQConfiguration.Password);
                 });
-                var repository = new InMemorySagaRepository<CoffeeState>();
+                var repository = registrationContext.Container.GetService<ISagaRepository<CoffeeState>>();
                 cfgBus.ReceiveEndpoint("state-machine", e => e.StateMachineSaga(registrationContext.Container.GetService<CoffeeStateMachine>(), repository));
             });
         }
