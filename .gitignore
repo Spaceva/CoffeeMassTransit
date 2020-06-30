@@ -338,4 +338,4 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
-**/WebinarMassTransit.*/App_Data/Logs
+**/CoffeeMassTransit.*/App_Data/Logs

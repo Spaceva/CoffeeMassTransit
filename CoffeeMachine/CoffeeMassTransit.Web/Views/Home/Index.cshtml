@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Coffee Orders";
+}
+
+@if (ViewBag.Orders != null)
+{
+    foreach (Guid orderId in ViewBag.Orders)
+    {
+        ViewBag.Payments.TryGetValue(orderId, out List<CoffeeMassTransit.Contracts.Payment> payments);
+        ViewBag.Coffees.TryGetValue(orderId, out CoffeeMassTransit.Contracts.Coffee coffee);
+        <div class="list-group">
+            <span class="list-group-item list-group-item-action list-group-item-info">Order <b>@orderId</b></span>
+            @if (payments != null)
+            {
+                foreach (var payment in payments)
+                {
+                    var amount = payment.Amount.ToString("##.00") + "€";
+                    if (!payment.IsValid)
+                    {
+                        <span class="list-group-item list-group-item-action list-group-item-danger">Payment #@payment.Id (@amount) - <b>Refused</b></span>
+                    }
+                    else if (payment.IsPaid)
+                    {
+                        <span class="list-group-item list-group-item-action list-group-item-success">Payment #@payment.Id (@amount)- <b>Paid</b></span>
+                    }
+                    else
+                    {
+                        <a asp-controller="Payment" asp-route-id="@orderId" class="list-group-item list-group-item-action list-group-item-warning">Payment #@payment.Id (@amount)- <b>Awaiting</b></a>
+                    }
+                }
+            }
+            @if (coffee != null)
+            {
+                var value = coffee.Done ? 100 : (coffee.Toppings?.Count > 0 ? 66 : 33);
+                <div href="#" class="list-group-item list-group-item-action list-group-item-light">
+                    <div>Coffee - <b>@(value == 100 ? "Done": "In progress")</b></div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated @(value == 100 ? "bg-success":string.Empty)" role="progressbar" aria-valuenow="@(value)" aria-valuemin="0" aria-valuemax="100" style="width: @(value)%"></div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div href="#" class="list-group-item list-group-item-action list-group-item-dark">
+                    <div>Coffee - <b>Not Started</b></div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div style="height: 10px;"></div>
+    }
+}
