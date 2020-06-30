@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
 using CoffeeMassTransit.Common;
+using MassTransit.RabbitMqTransport;
 
 namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga
 {
@@ -27,26 +28,23 @@ namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga
             services.Configure<RabbitMQConfiguration>(hostingContext.Configuration.GetSection("RabbitMQ"));
             services.AddMassTransit(cfgGlobal =>
             {
-                cfgGlobal.AddBus(ConfigureRabbitMQ);
+                cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
                 cfgGlobal.AddSaga<CoffeeMachineSaga>().InMemoryRepository();
             });
             services.AddHostedService<BusControlService>();
         }
 
-        private static IBusControl ConfigureRabbitMQ(IRegistrationContext<IServiceProvider> registrationContext)
+        private static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabbitMqBusFactoryConfigurator cfgBus)
         {
-            return Bus.Factory.CreateUsingRabbitMq(cfgBus =>
-            {
-                var rabbitMQConfigurationOption = registrationContext.Container.GetService<IOptions<RabbitMQConfiguration>>();
-                var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
+            var rabbitMQConfigurationOption = registrationContext.GetService<IOptions<RabbitMQConfiguration>>();
+            var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
 
-                cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
-                {
-                    cfgRabbitMq.Username(rabbitMQConfiguration.Username);
-                    cfgRabbitMq.Password(rabbitMQConfiguration.Password);
-                });
-                cfgBus.ConfigureEndpoints(registrationContext);
+            cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
+            {
+                cfgRabbitMq.Username(rabbitMQConfiguration.Username);
+                cfgRabbitMq.Password(rabbitMQConfiguration.Password);
             });
+            cfgBus.ConfigureEndpoints(registrationContext);
         }
     }
 }

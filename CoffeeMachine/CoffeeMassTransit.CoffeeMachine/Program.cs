@@ -12,6 +12,7 @@ using CoffeeMassTransit.Common;
 using CoffeeMassTransit.Core;
 using CoffeeMassTransit.Core.DAL;
 using CoffeeMassTransit.Messages;
+using MassTransit.RabbitMqTransport;
 
 namespace CoffeeMassTransit.CoffeeMachine
 {
@@ -38,34 +39,31 @@ namespace CoffeeMassTransit.CoffeeMachine
             services.AddMassTransit(cfgGlobal =>
             {
                 cfgGlobal.AddConsumer<CreateBaseCoffeeCommandConsumer>();
-                cfgGlobal.AddBus(ConfigureRabbitMQ);
+                cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
             });
             services.AddHostedService<BusControlService>();
         }
 
-        private static IBusControl ConfigureRabbitMQ(IRegistrationContext<IServiceProvider> registrationContext)
+        private static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabbitMqBusFactoryConfigurator cfgBus)
         {
-            return Bus.Factory.CreateUsingRabbitMq(cfgBus =>
+            var rabbitMQConfigurationOption = registrationContext.GetService<IOptions<RabbitMQConfiguration>>();
+            var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
+
+            cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
             {
-                var rabbitMQConfigurationOption = registrationContext.Container.GetService<IOptions<RabbitMQConfiguration>>();
-                var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
-
-                cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
-                {
-                    cfgRabbitMq.Username(rabbitMQConfiguration.Username);
-                    cfgRabbitMq.Password(rabbitMQConfiguration.Password);
-                });
-
-                cfgBus.ReceiveEndpoint(KebabCaseEndpointNameFormatter.Instance.SanitizeName(nameof(CreateBaseCoffeeCommand)),
-                     cfgEndpoint =>
-                     {
-                         cfgEndpoint.ConfigureConsumer<CreateBaseCoffeeCommandConsumer>(registrationContext);
-                         cfgEndpoint.UseRetry(cfgRetry =>
-                         {
-                             cfgRetry.Interval(3, TimeSpan.FromSeconds(5));
-                         });
-                     });
+                cfgRabbitMq.Username(rabbitMQConfiguration.Username);
+                cfgRabbitMq.Password(rabbitMQConfiguration.Password);
             });
+
+            cfgBus.ReceiveEndpoint(KebabCaseEndpointNameFormatter.Instance.SanitizeName(nameof(CreateBaseCoffeeCommand)),
+                 cfgEndpoint =>
+                 {
+                     cfgEndpoint.ConfigureConsumer<CreateBaseCoffeeCommandConsumer>(registrationContext);
+                     cfgEndpoint.UseRetry(cfgRetry =>
+                     {
+                         cfgRetry.Interval(3, TimeSpan.FromSeconds(5));
+                     });
+                 });
         }
     }
 }
