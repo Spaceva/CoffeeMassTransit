@@ -16,7 +16,7 @@ namespace CoffeeMassTransit.Tests
         [Fact]
         public async Task ShouldConsumeMessage()
         {
-            var harness = new InMemoryTestHarness();
+            using var harness = new InMemoryTestHarness();
             var consumer = harness.Consumer(() => new CreateBaseCoffeeCommandConsumer(new CoffeeInMemoryRepository(), null));
 
             await harness.Start();
@@ -24,11 +24,13 @@ namespace CoffeeMassTransit.Tests
             {
                 await harness.InputQueueSendEndpoint.Send<CreateBaseCoffeeCommand>(new { CorrelationId = Guid.NewGuid(), CoffeeType = CoffeeType.Americano, NoTopping = false });
 
-                Assert.True(harness.Consumed.Select<CreateBaseCoffeeCommand>().Any());
+                Assert.True(await harness.Sent.Any<CreateBaseCoffeeCommand>());
 
-                Assert.True(consumer.Consumed.Select<CreateBaseCoffeeCommand>().Any());
+                Assert.True(await harness.Consumed.Any<CreateBaseCoffeeCommand>());
 
-                Assert.Contains(harness.Published, publishedMsg => publishedMsg.MessageType == typeof(Fault<CreateBaseCoffeeCommand>) || publishedMsg.MessageType == typeof(BaseCoffeeFinishedEvent));
+                Assert.True(await consumer.Consumed.Any<CreateBaseCoffeeCommand>());
+
+                Assert.True(await harness.Published.Any<Fault<CreateBaseCoffeeCommand>>() || await harness.Published.Any<BaseCoffeeFinishedEvent>());
             }
             finally
             {

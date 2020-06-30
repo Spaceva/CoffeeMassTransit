@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using System;
 using CoffeeMassTransit.Common;
 using CoffeeMassTransit.DemoCommon;
+using MassTransit.RabbitMqTransport;
 
 namespace CoffeeMassTransit.DemoServiceB
 {
@@ -31,32 +32,29 @@ namespace CoffeeMassTransit.DemoServiceB
             {
                 cfgGlobal.AddConsumersFromNamespaceContaining<InformationRequestConsumer>();
                 cfgGlobal.AddConsumersFromNamespaceContaining<PublicMessageConsumer>();
-                cfgGlobal.AddBus(ConfigureRabbitMQ);
+                cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
             });
             services.AddHostedService<BusControlService>();
             services.AddHostedService<PublicMessageSpammer>();
         }
 
-        private static IBusControl ConfigureRabbitMQ(IRegistrationContext<IServiceProvider> registrationContext)
+        private static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabbitMqBusFactoryConfigurator cfgBus)
         {
-            return Bus.Factory.CreateUsingRabbitMq(cfgBus =>
+            var rabbitMQConfigurationOption = registrationContext.GetService<IOptions<RabbitMQConfiguration>>();
+            var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
+
+            cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
             {
-                var rabbitMQConfigurationOption = registrationContext.Container.GetService<IOptions<RabbitMQConfiguration>>();
-                var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
+                cfgRabbitMq.Username(rabbitMQConfiguration.Username);
+                cfgRabbitMq.Password(rabbitMQConfiguration.Password);
+            });
 
-                cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
+            cfgBus.ReceiveEndpoint("serviceB", cfgEndpoint =>
+            {
+                cfgEndpoint.ConfigureConsumers(registrationContext);
+                cfgEndpoint.UseMessageRetry(cfgRetry =>
                 {
-                    cfgRabbitMq.Username(rabbitMQConfiguration.Username);
-                    cfgRabbitMq.Password(rabbitMQConfiguration.Password);
-                });
-
-                cfgBus.ReceiveEndpoint("serviceB", cfgEndpoint =>
-                {
-                    cfgEndpoint.ConfigureConsumers(registrationContext);
-                    cfgEndpoint.UseMessageRetry(cfgRetry =>
-                    {
-                        cfgRetry.Interval(2, TimeSpan.FromMilliseconds(500));
-                    });
+                    cfgRetry.Interval(2, TimeSpan.FromMilliseconds(500));
                 });
             });
         }
