@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using System;
 using CoffeeMassTransit.Common;
 using MassTransit.RabbitMqTransport;
+using Microsoft.Extensions.Configuration;
 
 namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga
 {
@@ -29,7 +30,7 @@ namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga
             services.AddMassTransit(cfgGlobal =>
             {
                 cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
-                cfgGlobal.AddSaga<CoffeeMachineSaga>().InMemoryRepository();
+                cfgGlobal.AddSaga<CoffeeMachineSaga>().DapperRepository(hostingContext.Configuration.GetConnectionString("Local"));
             });
             services.AddHostedService<BusControlService>();
         }

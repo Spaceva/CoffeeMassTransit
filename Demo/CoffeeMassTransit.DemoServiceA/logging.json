@@ -4,7 +4,7 @@
     "MinimumLevel": {
       "Default": "Warning",
       "Override": {
-        "MassTransit": "Information",
+        "MassTransit": "Debug",
         "Microsoft.Hosting.Lifetime": "Information",
         "CoffeeMassTransit": "Information"
       }

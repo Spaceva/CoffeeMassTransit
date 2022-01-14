@@ -16,7 +16,6 @@ namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga
         Orchestrates<PaymentRefusedEvent>,
         Orchestrates<BaseCoffeeFinishedEvent>,
         Orchestrates<ToppingsAddedEvent>
-
     {
         public Guid CorrelationId { get; set; }
         public string CustomerName { get; set; }
@@ -24,7 +23,7 @@ namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga
         public CoffeeType CoffeeTypeRequested { get; set; }
         public float Amount { get; set; }
 
-        public string State { get; private set; } = "Not Started";
+        public string State { get; private set; } = nameof(CoffeeMachineSagaStates.NotStarted);
 
         public readonly Uri requestPaymentEndpoint = new Uri($"queue:{KebabCaseEndpointNameFormatter.Instance.SanitizeName(nameof(RequestPaymentCommand))}");
         public readonly Uri createBaseCoffeeEndpoint = new Uri($"queue:{KebabCaseEndpointNameFormatter.Instance.SanitizeName(nameof(CreateBaseCoffeeCommand))}");
@@ -38,14 +37,14 @@ namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga
             this.Amount = CoffeePriceCalculator.Compute(context.Message.CoffeeType, context.Message.Toppings);
             var sendEndpoint = await context.GetSendEndpoint(requestPaymentEndpoint);
             await sendEndpoint.Send<RequestPaymentCommand>(new { this.CorrelationId, this.Amount });
-            this.State = "AwaitingPayment";
+            this.State = nameof(CoffeeMachineSagaStates.AwaitingPayment);
         }
 
         public async Task Consume(ConsumeContext<PaymentAcceptedEvent> context)
         {
             var sendEndpoint = await context.GetSendEndpoint(createBaseCoffeeEndpoint);
             await sendEndpoint.Send<CreateBaseCoffeeCommand>(new { this.CorrelationId, CoffeeType = this.CoffeeTypeRequested, NoTopping = string.IsNullOrWhiteSpace(this.ToppingsRequested) });
-            this.State = "Paid";
+            this.State = nameof(CoffeeMachineSagaStates.Paid);
         }
 
         public async Task Consume(ConsumeContext<PaymentRefusedEvent> context)
@@ -58,18 +57,18 @@ namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga
         {
             if (string.IsNullOrWhiteSpace(this.ToppingsRequested))
             {
-                this.State = "Ended";
+                this.State = nameof(CoffeeMachineSagaStates.Ended);
                 return;
             }
 
             var sendEndpoint = await context.GetSendEndpoint(addToppingsEndpoint);
             await sendEndpoint.Send<AddToppingsCommand>(new { this.CorrelationId, Toppings = this.ToppingsRequested.Split(",").Select(t => Enum.Parse<Topping>(t)) });
-            this.State = "BaseCoffeeOK";
+            this.State = nameof(CoffeeMachineSagaStates.BaseCoffeeOK);
         }
 
         public Task Consume(ConsumeContext<ToppingsAddedEvent> context)
         {
-            this.State = "Ended";
+            this.State = nameof(CoffeeMachineSagaStates.Ended);
             return Task.CompletedTask;
         }
     }

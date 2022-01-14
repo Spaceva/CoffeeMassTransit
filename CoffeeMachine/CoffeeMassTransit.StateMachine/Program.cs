@@ -34,7 +34,7 @@ namespace CoffeeMassTransit.CoffeeMassTransit.StateMachine
             services.AddMassTransit(cfgGlobal =>
             {
                 cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
-                cfgGlobal.AddSagaStateMachine<CoffeeStateMachine, CoffeeState>().InMemoryRepository();
+                cfgGlobal.AddSagaStateMachine<CoffeeStateMachine, CoffeeState>().DapperRepository(hostingContext.Configuration.GetConnectionString("Local"));
             });
             services.AddHostedService<BusControlService>();
         }
