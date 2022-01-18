@@ -20,10 +20,11 @@ namespace CoffeeMassTransit.ToppingManager
 
         public async Task Consume(ConsumeContext<AddToppingsCommand> context)
         {
-            this.logger?.LogInformation($"Consuming AddToppingsCommand - {context.Message.CorrelationId}");
-            await Task.Delay(TimeSpan.FromSeconds(8));
+            this.logger?.LogInformation($"Consuming {nameof(AddToppingsCommand)} - {context.Message.CorrelationId}... Waiting 8s");
+            await Task.Delay(TimeSpan.FromSeconds(8), context.CancellationToken);
             this.coffeeRepository.AddToppings(context.CorrelationId.Value, context.Message.Toppings);
-            await context.Publish<ToppingsAddedEvent>(new { context.CorrelationId, context.Message.Toppings });
+            await context.Publish<ToppingsAddedEvent>(new { context.CorrelationId, context.Message.Toppings }, context.CancellationToken);
+            this.logger?.LogInformation($"Finished !");
         }
     }
 }

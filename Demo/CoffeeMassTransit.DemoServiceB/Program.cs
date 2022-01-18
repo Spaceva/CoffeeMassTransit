@@ -1,6 +1,5 @@
 ﻿using GreenPipes;
 using MassTransit;
-using MassTransit.Definition;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;

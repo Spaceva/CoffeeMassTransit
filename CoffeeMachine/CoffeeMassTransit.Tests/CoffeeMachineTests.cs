@@ -1,7 +1,6 @@
 using MassTransit;
 using MassTransit.Testing;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using CoffeeMassTransit.CoffeeMachine;
 using CoffeeMassTransit.Contracts;

@@ -1,6 +1,5 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace CoffeeMassTransit.DemoCommon

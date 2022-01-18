@@ -46,6 +46,7 @@ namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga
                 cfgRabbitMq.Password(rabbitMQConfiguration.Password);
             });
             cfgBus.ConfigureEndpoints(registrationContext);
+            cfgBus.PurgeOnStartup = true;
         }
     }
 }

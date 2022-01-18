@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga
+﻿namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga
 {
     internal enum CoffeeMachineSagaStates
     {

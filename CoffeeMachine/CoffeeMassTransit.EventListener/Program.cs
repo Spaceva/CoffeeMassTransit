@@ -1,12 +1,9 @@
 ﻿using MassTransit;
 using MassTransit.Definition;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Serilog;
 using System;
-using System.IO;
 using CoffeeMassTransit.Common;
 using MassTransit.RabbitMqTransport;
 
@@ -50,6 +47,7 @@ namespace CoffeeMassTransit.EventListener
             });
 
             cfgBus.ConfigureEndpoints(registrationContext, KebabCaseEndpointNameFormatter.Instance);
+            cfgBus.PurgeOnStartup = true;
         }
     }
 }

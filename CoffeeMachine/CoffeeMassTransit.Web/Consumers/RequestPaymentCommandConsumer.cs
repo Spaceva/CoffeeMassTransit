@@ -19,8 +19,8 @@ namespace CoffeeMassTransit.Web
 
         public async Task Consume(ConsumeContext<RequestPaymentCommand> context)
         {
-            this.logger?.LogInformation($"Consuming RequestPaymentCommand - {context.Message.CorrelationId}");
-            await Task.Delay(TimeSpan.FromSeconds(3));
+            this.logger?.LogInformation($"Consuming ${nameof(RequestPaymentCommand)} - {context.Message.CorrelationId}... Waiting 3s");
+            await Task.Delay(TimeSpan.FromSeconds(3), context.CancellationToken);
             this.paymentService.Create(context.CorrelationId.Value, context.Message.Amount);
         }
     }

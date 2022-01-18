@@ -5,9 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Serilog;
 using System;
-using System.IO;
 using CoffeeMassTransit.Common;
 using CoffeeMassTransit.Core;
 using CoffeeMassTransit.Core.DAL;
@@ -63,6 +61,7 @@ namespace CoffeeMassTransit.ToppingManager
                      {
                          cfgRetry.Interval(3, TimeSpan.FromSeconds(5));
                      });
+                     cfgEndpoint.PurgeOnStartup = true;
                  });
         }
     }

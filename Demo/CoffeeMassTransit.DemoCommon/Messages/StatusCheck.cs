@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CoffeeMassTransit.DemoCommon
+﻿namespace CoffeeMassTransit.DemoCommon
 {
     public interface StatusCheck
     {
