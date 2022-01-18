@@ -56,6 +56,7 @@ namespace CoffeeMassTransit.DemoServiceB
                 {
                     cfgRetry.Interval(2, TimeSpan.FromMilliseconds(500));
                 });
+                cfgEndpoint.PurgeOnStartup = true;
             });
         }
     }

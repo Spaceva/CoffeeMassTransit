@@ -21,12 +21,11 @@ namespace CoffeeMassTransit.DemoServiceB
             if (DateTime.Now.Second % 2 == 1)
             {
                 logger?.LogInformation("Nope ! Won't happen...");
-                throw new AccessViolationException();
+                throw new Exception("Denying request");
             }
             var sendEndpoint = await context.GetSendEndpoint(new Uri("exchange:serviceA"));
             await sendEndpoint.Send<InformationResponse>(new { });
             logger?.LogInformation("Answered !");
-
         }
     }
 }

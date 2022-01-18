@@ -52,6 +52,7 @@ namespace CoffeeMassTransit.DemoServiceA
             cfgBus.ReceiveEndpoint("serviceA", cfgEndpoint =>
             {
                 cfgEndpoint.ConfigureConsumers(registrationContext);
+                cfgEndpoint.PurgeOnStartup = true;
             });
         }
     }

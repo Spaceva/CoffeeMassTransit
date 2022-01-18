@@ -24,19 +24,17 @@ namespace CoffeeMassTransit.DemoServiceA
             logger?.LogInformation("Starting...");
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(8));
+                await Task.Delay(TimeSpan.FromSeconds(8), stoppingToken);
                 logger?.LogInformation("Let's ask how he feels..");
                 var (responseOKTask, responseKOTask) = await requestClient.GetResponse<StatusOKResponse, StatusNOKResponse>(new { }, stoppingToken);
-
-                if (responseOKTask.IsCompletedSuccessfully)
-                {
-                    logger?.LogInformation("It's OK!");
-                }
-                else
+                if (!responseOKTask.IsCompletedSuccessfully)
                 {
                     var responseKO = await responseKOTask;
                     logger?.LogInformation($"Oh no ! He answered '{responseKO.Message.Reason}' !");
+                    continue;
                 }
+
+                logger?.LogInformation("It's OK!");
             }
         }
     }

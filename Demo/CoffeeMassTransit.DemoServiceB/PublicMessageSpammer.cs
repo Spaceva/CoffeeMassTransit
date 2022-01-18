@@ -24,8 +24,8 @@ namespace CoffeeMassTransit.DemoServiceB
             logger?.LogInformation("Starting...");
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(17));
-                await publishEndpoint.Publish<PublicMessage>(new { Content = "Hello from Service B" });
+                await Task.Delay(TimeSpan.FromSeconds(17), stoppingToken);
+                await publishEndpoint.Publish<PublicMessage>(new { MessageId = Guid.NewGuid(), Content = "Hello from Service B" }, stoppingToken);
                 logger?.LogInformation("PublicMessage sent");
             }
         }

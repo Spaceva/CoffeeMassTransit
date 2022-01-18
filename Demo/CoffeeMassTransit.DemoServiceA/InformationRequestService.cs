@@ -25,8 +25,8 @@ namespace CoffeeMassTransit.DemoServiceA
             var sendEndpoint = await this.sendEndpointProvider.GetSendEndpoint(new Uri("queue:serviceB"));
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(5));
-                await sendEndpoint.Send<InformationRequest>(new { });
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                await sendEndpoint.Send<InformationRequest>(new { }, stoppingToken);
                 logger?.LogInformation("InformationRequest message sent");
             }
         }
