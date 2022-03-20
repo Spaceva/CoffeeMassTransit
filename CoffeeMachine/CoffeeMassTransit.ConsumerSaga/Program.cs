@@ -4,49 +4,46 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
 using CoffeeMassTransit.Common;
-using MassTransit.RabbitMqTransport;
 using Microsoft.Extensions.Configuration;
 
-namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga
+namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga;
+
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        CreateHostBuilder(args).Build().Run();
+    }
+
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .AddLoggingConfigurationFile()
+            .AddDatabaseConfigurationFile()
+            .AddRabbitMQConfigurationFile()
+            .ConfigureServices(ConfigureServiceCollection)
+            .ConfigureSerilog();
+
+    private static void ConfigureServiceCollection(HostBuilderContext hostingContext, IServiceCollection services)
+    {
+        services.Configure<RabbitMQConfiguration>(hostingContext.Configuration.GetSection("RabbitMQ"));
+        services.AddMassTransit(cfgGlobal =>
         {
-            CreateHostBuilder(args).Build().Run();
-        }
+            cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
+            cfgGlobal.AddSaga<CoffeeMachineSaga>().InMemoryRepository();//.DapperRepository(hostingContext.Configuration.GetConnectionString("Local"));
+        });
+    }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .AddLoggingConfigurationFile()
-                .AddDatabaseConfigurationFile()
-                .AddRabbitMQConfigurationFile()
-                .ConfigureServices(ConfigureServiceCollection)
-                .ConfigureSerilog();
+    private static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabbitMqBusFactoryConfigurator cfgBus)
+    {
+        var rabbitMQConfigurationOption = registrationContext.GetRequiredService<IOptions<RabbitMQConfiguration>>();
+        var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
 
-        private static void ConfigureServiceCollection(HostBuilderContext hostingContext, IServiceCollection services)
+        cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
         {
-            services.Configure<RabbitMQConfiguration>(hostingContext.Configuration.GetSection("RabbitMQ"));
-            services.AddMassTransit(cfgGlobal =>
-            {
-                cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
-                cfgGlobal.AddSaga<CoffeeMachineSaga>().DapperRepository(hostingContext.Configuration.GetConnectionString("Local"));
-            });
-            services.AddHostedService<BusControlService>();
-        }
-
-        private static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabbitMqBusFactoryConfigurator cfgBus)
-        {
-            var rabbitMQConfigurationOption = registrationContext.GetService<IOptions<RabbitMQConfiguration>>();
-            var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
-
-            cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
-            {
-                cfgRabbitMq.Username(rabbitMQConfiguration.Username);
-                cfgRabbitMq.Password(rabbitMQConfiguration.Password);
-            });
-            cfgBus.ConfigureEndpoints(registrationContext);
-            cfgBus.PurgeOnStartup = true;
-        }
+            cfgRabbitMq.Username(rabbitMQConfiguration.Username);
+            cfgRabbitMq.Password(rabbitMQConfiguration.Password);
+        });
+        cfgBus.ConfigureEndpoints(registrationContext);
+        cfgBus.PurgeOnStartup = true;
     }
 }

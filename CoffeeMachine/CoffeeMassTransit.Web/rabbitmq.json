@@ -1,6 +1,6 @@
 {
   "RabbitMQ": {
-    "Host": "localhost",
+    "Host": "spacevanas",
     "VirtualHost": "webinar-coffee",
     "Username": "webinar",
     "Password": "webinar"

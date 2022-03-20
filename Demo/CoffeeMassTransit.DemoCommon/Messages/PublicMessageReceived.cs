@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace CoffeeMassTransit.DemoCommon
+namespace CoffeeMassTransit.DemoCommon;
+
+public interface PublicMessageReceived
 {
-    public interface PublicMessageReceived
-    {
-        Guid MessageId { get; }
-    }
+    Guid MessageId { get; }
 }

@@ -1,12 +1,11 @@
-﻿namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga
+﻿namespace CoffeeMassTransit.CoffeeMassTransit.ConsumerSaga;
+
+internal enum CoffeeMachineSagaStates
 {
-    internal enum CoffeeMachineSagaStates
-    {
-        NotStarted,
-        AwaitingPayment,
-        Paid,
-        BaseCoffeeOK,
-        CoffeeReady,
-        Ended
-    }
+    NotStarted,
+    AwaitingPayment,
+    Paid,
+    BaseCoffeeOK,
+    CoffeeReady,
+    Ended
 }

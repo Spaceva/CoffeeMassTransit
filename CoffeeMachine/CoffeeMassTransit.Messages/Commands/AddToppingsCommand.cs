@@ -2,10 +2,9 @@
 using System;
 using CoffeeMassTransit.Contracts;
 
-namespace CoffeeMassTransit.Messages
+namespace CoffeeMassTransit.Messages;
+
+public interface AddToppingsCommand : CorrelatedBy<Guid>
 {
-    public interface AddToppingsCommand : CorrelatedBy<Guid>
-    {
-        Topping[] Toppings { get; }
-    }
+    Topping[] Toppings { get; }
 }

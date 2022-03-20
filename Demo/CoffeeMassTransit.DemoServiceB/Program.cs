@@ -1,62 +1,58 @@
-﻿using GreenPipes;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
 using CoffeeMassTransit.Common;
 using CoffeeMassTransit.DemoCommon;
-using MassTransit.RabbitMqTransport;
 
-namespace CoffeeMassTransit.DemoServiceB
+namespace CoffeeMassTransit.DemoServiceB;
+
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        CreateHostBuilder(args).Build().Run();
+    }
+
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .AddLoggingConfigurationFile()
+            .AddRabbitMQConfigurationFile()
+            .ConfigureServices(ConfigureServiceCollection)
+            .ConfigureSerilog();
+
+    private static void ConfigureServiceCollection(HostBuilderContext hostingContext, IServiceCollection services)
+    {
+        services.Configure<RabbitMQConfiguration>(hostingContext.Configuration.GetSection("RabbitMQ"));
+        services.AddMassTransit(cfgGlobal =>
         {
-            CreateHostBuilder(args).Build().Run();
-        }
+            cfgGlobal.AddConsumersFromNamespaceContaining<InformationRequestConsumer>();
+            cfgGlobal.AddConsumersFromNamespaceContaining<PublicMessageConsumer>();
+            cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
+        });
+        services.AddHostedService<PublicMessageSpammer>();
+    }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .AddLoggingConfigurationFile()
-                .AddRabbitMQConfigurationFile()
-                .ConfigureServices(ConfigureServiceCollection)
-                .ConfigureSerilog();
+    private static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabbitMqBusFactoryConfigurator cfgBus)
+    {
+        var rabbitMQConfigurationOption = registrationContext.GetRequiredService<IOptions<RabbitMQConfiguration>>();
+        var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
 
-        private static void ConfigureServiceCollection(HostBuilderContext hostingContext, IServiceCollection services)
+        cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
         {
-            services.Configure<RabbitMQConfiguration>(hostingContext.Configuration.GetSection("RabbitMQ"));
-            services.AddMassTransit(cfgGlobal =>
-            {
-                cfgGlobal.AddConsumersFromNamespaceContaining<InformationRequestConsumer>();
-                cfgGlobal.AddConsumersFromNamespaceContaining<PublicMessageConsumer>();
-                cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
-            });
-            services.AddHostedService<BusControlService>();
-            services.AddHostedService<PublicMessageSpammer>();
-        }
+            cfgRabbitMq.Username(rabbitMQConfiguration.Username);
+            cfgRabbitMq.Password(rabbitMQConfiguration.Password);
+        });
 
-        private static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabbitMqBusFactoryConfigurator cfgBus)
+        cfgBus.ReceiveEndpoint("serviceB", cfgEndpoint =>
         {
-            var rabbitMQConfigurationOption = registrationContext.GetService<IOptions<RabbitMQConfiguration>>();
-            var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
-
-            cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
+            cfgEndpoint.ConfigureConsumers(registrationContext);
+            cfgEndpoint.UseMessageRetry(cfgRetry =>
             {
-                cfgRabbitMq.Username(rabbitMQConfiguration.Username);
-                cfgRabbitMq.Password(rabbitMQConfiguration.Password);
+                cfgRetry.Interval(2, TimeSpan.FromMilliseconds(500));
             });
-
-            cfgBus.ReceiveEndpoint("serviceB", cfgEndpoint =>
-            {
-                cfgEndpoint.ConfigureConsumers(registrationContext);
-                cfgEndpoint.UseMessageRetry(cfgRetry =>
-                {
-                    cfgRetry.Interval(2, TimeSpan.FromMilliseconds(500));
-                });
-                cfgEndpoint.PurgeOnStartup = true;
-            });
-        }
+            cfgEndpoint.PurgeOnStartup = true;
+        });
     }
 }

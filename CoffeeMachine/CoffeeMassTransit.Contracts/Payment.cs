@@ -1,13 +1,12 @@
 ﻿using System;
 
-namespace CoffeeMassTransit.Contracts
+namespace CoffeeMassTransit.Contracts;
+
+public class Payment
 {
-    public class Payment
-    {
-        public Guid OrderId { get; set; }
-        public ulong Id { get; set; }
-        public float Amount { get; set; }
-        public bool IsPaid { get; set; }
-        public bool IsValid { get; set; }
-    }
+    public Guid OrderId { get; set; }
+    public ulong Id { get; set; }
+    public float Amount { get; set; }
+    public bool IsPaid { get; set; }
+    public bool IsValid { get; set; }
 }

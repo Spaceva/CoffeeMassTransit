@@ -1,14 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CoffeeMassTransit.Web
+namespace CoffeeMassTransit.Web;
+
+public class PaymentViewModel
 {
-    public class PaymentViewModel
-    {
-        [Required]
-        public string OrderId { get; set; }
-        [Required]
-        public string CardNumber { get; set; }
-        [Required]
-        public string CC { get; set; }
-    }
+    [Required]
+    public string OrderId { get; set; } = default!;
+    [Required]
+    public string CardNumber { get; set; } = default!;
+    [Required]
+    public string CC { get; set; } = default!;
 }

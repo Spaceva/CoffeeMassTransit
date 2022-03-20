@@ -1,6 +1,5 @@
-﻿namespace CoffeeMassTransit.DemoCommon
+﻿namespace CoffeeMassTransit.DemoCommon;
+
+public interface StatusOKResponse
 {
-    public interface StatusOKResponse
-    {
-    }
 }

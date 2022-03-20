@@ -1,6 +1,4 @@
-﻿using GreenPipes;
-using MassTransit;
-using MassTransit.Definition;
+﻿using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,59 +8,56 @@ using CoffeeMassTransit.Common;
 using CoffeeMassTransit.Core;
 using CoffeeMassTransit.Core.DAL;
 using CoffeeMassTransit.Messages;
-using MassTransit.RabbitMqTransport;
 
-namespace CoffeeMassTransit.CoffeeMachine
+namespace CoffeeMassTransit.CoffeeMachine;
+
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        CreateHostBuilder(args).Build().Run();
+    }
+
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .AddLoggingConfigurationFile()
+            .AddDatabaseConfigurationFile()
+            .AddRabbitMQConfigurationFile()
+            .ConfigureServices(ConfigureServiceCollection)
+            .ConfigureSerilog();
+
+    private static void ConfigureServiceCollection(HostBuilderContext hostingContext, IServiceCollection services)
+    {
+        services.Configure<RabbitMQConfiguration>(hostingContext.Configuration.GetSection("RabbitMQ"));
+        services.AddSingleton<SqlConnectionFactory>(new LocalSqlConnectionFactory(hostingContext.Configuration.GetConnectionString("Local")));
+        services.AddSingleton<ICoffeeRepository, CoffeeInMemoryRepository>();
+        services.AddMassTransit(cfgGlobal =>
         {
-            CreateHostBuilder(args).Build().Run();
-        }
+            cfgGlobal.AddConsumer<CreateBaseCoffeeCommandConsumer>();
+            cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
+        });
+    }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .AddLoggingConfigurationFile()
-                .AddDatabaseConfigurationFile()
-                .AddRabbitMQConfigurationFile()
-                .ConfigureServices(ConfigureServiceCollection)
-                .ConfigureSerilog();
+    private static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabbitMqBusFactoryConfigurator cfgBus)
+    {
+        var rabbitMQConfigurationOption = registrationContext.GetRequiredService<IOptions<RabbitMQConfiguration>>();
+        var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
 
-        private static void ConfigureServiceCollection(HostBuilderContext hostingContext, IServiceCollection services)
+        cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
         {
-            services.Configure<RabbitMQConfiguration>(hostingContext.Configuration.GetSection("RabbitMQ"));
-            services.AddSingleton<SqlConnectionFactory>(new LocalSqlConnectionFactory(hostingContext.Configuration.GetConnectionString("Local")));
-            services.AddSingleton<ICoffeeRepository, CoffeeDapperRepository>();
-            services.AddMassTransit(cfgGlobal =>
-            {
-                cfgGlobal.AddConsumer<CreateBaseCoffeeCommandConsumer>();
-                cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
-            });
-            services.AddHostedService<BusControlService>();
-        }
+            cfgRabbitMq.Username(rabbitMQConfiguration.Username);
+            cfgRabbitMq.Password(rabbitMQConfiguration.Password);
+        });
 
-        private static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabbitMqBusFactoryConfigurator cfgBus)
-        {
-            var rabbitMQConfigurationOption = registrationContext.GetService<IOptions<RabbitMQConfiguration>>();
-            var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
-
-            cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
-            {
-                cfgRabbitMq.Username(rabbitMQConfiguration.Username);
-                cfgRabbitMq.Password(rabbitMQConfiguration.Password);
-            });
-
-            cfgBus.ReceiveEndpoint(KebabCaseEndpointNameFormatter.Instance.SanitizeName(nameof(CreateBaseCoffeeCommand)),
-                 cfgEndpoint =>
+        cfgBus.ReceiveEndpoint(KebabCaseEndpointNameFormatter.Instance.SanitizeName(nameof(CreateBaseCoffeeCommand)),
+             cfgEndpoint =>
+             {
+                 cfgEndpoint.ConfigureConsumer<CreateBaseCoffeeCommandConsumer>(registrationContext);
+                 cfgEndpoint.UseRetry(cfgRetry =>
                  {
-                     cfgEndpoint.ConfigureConsumer<CreateBaseCoffeeCommandConsumer>(registrationContext);
-                     cfgEndpoint.UseRetry(cfgRetry =>
-                     {
-                         cfgRetry.Interval(3, TimeSpan.FromSeconds(5));
-                     });
-                     cfgEndpoint.PurgeOnStartup = true;
+                     cfgRetry.Interval(3, TimeSpan.FromSeconds(5));
                  });
-        }
+                 cfgEndpoint.PurgeOnStartup = true;
+             });
     }
 }
