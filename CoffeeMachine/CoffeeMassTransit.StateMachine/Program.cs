@@ -30,7 +30,7 @@ public class Program
         services.AddMassTransit(cfgGlobal =>
         {
             cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
-            cfgGlobal.AddSagaStateMachine<CoffeeStateMachine, CoffeeState>().InMemoryRepository();//.DapperRepository(hostingContext.Configuration.GetConnectionString("Local"));
+            cfgGlobal.AddSagaStateMachine<CoffeeStateMachine, CoffeeState>().DapperRepository(hostingContext.Configuration.GetConnectionString("Local"));
         });
     }
 

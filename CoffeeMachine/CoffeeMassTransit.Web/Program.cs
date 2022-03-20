@@ -55,8 +55,8 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     services.AddTransient<OrderService>();
     services.AddTransient<PaymentService>();
     services.AddTransient<CoffeeService>();
-    services.AddSingleton<IPaymentRepository, PaymentInMemoryRepository>();
-    services.AddSingleton<ICoffeeRepository, CoffeeInMemoryRepository>();
+    services.AddSingleton<IPaymentRepository, PaymentDapperRepository>();
+    services.AddSingleton<ICoffeeRepository, CoffeeDapperRepository>();
     services.AddControllersWithViews();
     services.AddHealthChecks();
 }

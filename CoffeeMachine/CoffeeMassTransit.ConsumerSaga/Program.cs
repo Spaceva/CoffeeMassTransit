@@ -29,7 +29,7 @@ public class Program
         services.AddMassTransit(cfgGlobal =>
         {
             cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
-            cfgGlobal.AddSaga<CoffeeMachineSaga>().InMemoryRepository();//.DapperRepository(hostingContext.Configuration.GetConnectionString("Local"));
+            cfgGlobal.AddSaga<CoffeeMachineSaga>().DapperRepository(hostingContext.Configuration.GetConnectionString("Local"));
         });
     }
 

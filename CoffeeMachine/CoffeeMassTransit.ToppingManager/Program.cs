@@ -30,7 +30,7 @@ public class Program
     {
         services.Configure<RabbitMQConfiguration>(hostingContext.Configuration.GetSection("RabbitMQ"));
         services.AddSingleton<SqlConnectionFactory>(new LocalSqlConnectionFactory(hostingContext.Configuration.GetConnectionString("Local")));
-        services.AddSingleton<ICoffeeRepository, CoffeeInMemoryRepository>();
+        services.AddSingleton<ICoffeeRepository, CoffeeDapperRepository>();
         services.AddMassTransit(cfgGlobal =>
         {
             cfgGlobal.AddConsumer<AddToppingsCommandConsumer>();
