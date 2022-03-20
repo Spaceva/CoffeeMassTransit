@@ -2,12 +2,11 @@
 using System;
 using CoffeeMassTransit.Contracts;
 
-namespace CoffeeMassTransit.Messages
-{
-    public interface CreateBaseCoffeeCommand : CorrelatedBy<Guid>
-    {
-        CoffeeType CoffeeType { get; }
+namespace CoffeeMassTransit.Messages;
 
-        bool NoTopping { get; }
-    }
+public interface CreateBaseCoffeeCommand : CorrelatedBy<Guid>
+{
+    CoffeeType CoffeeType { get; }
+
+    bool NoTopping { get; }
 }

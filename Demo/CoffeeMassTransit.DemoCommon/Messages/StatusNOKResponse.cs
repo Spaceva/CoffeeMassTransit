@@ -1,7 +1,6 @@
-﻿namespace CoffeeMassTransit.DemoCommon
+﻿namespace CoffeeMassTransit.DemoCommon;
+
+public interface StatusNOKResponse
 {
-    public interface StatusNOKResponse
-    {
-        string Reason { get; }
-    }
+    string Reason { get; }
 }

@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using CoffeeMassTransit.Messages;
 
-namespace CoffeeMassTransit.EventListener
+namespace CoffeeMassTransit.EventListener;
+
+public class PaymentAcceptedEventConsumer : ListenerConsumer<PaymentAcceptedEvent>
 {
-    public class PaymentAcceptedEventConsumer : ListenerConsumer<PaymentAcceptedEvent>
-    {
-        public PaymentAcceptedEventConsumer(ILogger<ListenerConsumer<PaymentAcceptedEvent>> logger) : base(logger) { }
-    }
+    public PaymentAcceptedEventConsumer(ILogger<ListenerConsumer<PaymentAcceptedEvent>> logger) : base(logger) { }
 }

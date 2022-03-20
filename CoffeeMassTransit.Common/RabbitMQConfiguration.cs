@@ -1,10 +1,9 @@
-﻿namespace CoffeeMassTransit.Common
+﻿namespace CoffeeMassTransit.Common;
+
+public class RabbitMQConfiguration
 {
-    public class RabbitMQConfiguration
-    {
-        public string Host { get; set; }
-        public string VirtualHost { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-    }
+    public string Host { get; init; } = default!;
+    public string VirtualHost { get; init; } = default!;
+    public string Username { get; init; } = default!;
+    public string Password { get; init; } = default!;
 }

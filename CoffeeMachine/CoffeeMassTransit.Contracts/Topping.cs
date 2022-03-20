@@ -1,10 +1,9 @@
-﻿namespace CoffeeMassTransit.Contracts
+﻿namespace CoffeeMassTransit.Contracts;
+
+public enum Topping
 {
-    public enum Topping
-    {
-        Caramel,
-        Chocolate,
-        Whiskey,
-        WhippedCream
-    }
+    Caramel,
+    Chocolate,
+    Whiskey,
+    WhippedCream
 }

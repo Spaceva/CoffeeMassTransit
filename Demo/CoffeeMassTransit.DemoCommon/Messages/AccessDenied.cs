@@ -1,6 +1,5 @@
-﻿namespace CoffeeMassTransit.DemoCommon
+﻿namespace CoffeeMassTransit.DemoCommon;
+
+public interface AccessDenied
 {
-    public interface AccessDenied
-    {
-    }
 }

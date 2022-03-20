@@ -4,28 +4,27 @@ using System;
 using System.Threading.Tasks;
 using CoffeeMassTransit.DemoCommon;
 
-namespace CoffeeMassTransit.DemoServiceB
+namespace CoffeeMassTransit.DemoServiceB;
+
+public class InformationRequestConsumer : IConsumer<InformationRequest>
 {
-    public class InformationRequestConsumer : IConsumer<InformationRequest>
+    private readonly ILogger<InformationRequestConsumer> logger;
+
+    public InformationRequestConsumer(ILogger<InformationRequestConsumer> logger)
     {
-        private readonly ILogger<InformationRequestConsumer> logger;
+        this.logger = logger;
+    }
 
-        public InformationRequestConsumer(ILogger<InformationRequestConsumer> logger)
+    public async Task Consume(ConsumeContext<InformationRequest> context)
+    {
+        logger?.LogInformation("Received an information request !");
+        if (DateTime.Now.Second % 2 == 1)
         {
-            this.logger = logger;
+            logger?.LogInformation("Nope ! Won't happen...");
+            throw new Exception("Denying request");
         }
-
-        public async Task Consume(ConsumeContext<InformationRequest> context)
-        {
-            logger?.LogInformation("Received an information request !");
-            if (DateTime.Now.Second % 2 == 1)
-            {
-                logger?.LogInformation("Nope ! Won't happen...");
-                throw new Exception("Denying request");
-            }
-            var sendEndpoint = await context.GetSendEndpoint(new Uri("exchange:serviceA"));
-            await sendEndpoint.Send<InformationResponse>(new { });
-            logger?.LogInformation("Answered !");
-        }
+        var sendEndpoint = await context.GetSendEndpoint(new Uri("exchange:serviceA"));
+        await sendEndpoint.Send<InformationResponse>(new { });
+        logger?.LogInformation("Answered !");
     }
 }

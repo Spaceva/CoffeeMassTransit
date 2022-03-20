@@ -2,40 +2,39 @@
 using System;
 using System.Threading.Tasks;
 
-namespace CoffeeMassTransit.Web.Controllers
+namespace CoffeeMassTransit.Web.Controllers;
+
+public class PaymentController : Controller
 {
-    public class PaymentController : Controller
+    private readonly PaymentService paymentService;
+
+    public PaymentController(PaymentService paymentService)
     {
-        private readonly PaymentService paymentService;
+        this.paymentService = paymentService;
+    }
 
-        public PaymentController(PaymentService paymentService)
-        {
-            this.paymentService = paymentService;
-        }
+    [HttpGet]
+    public IActionResult Index(string id)
+    {
+        ViewBag.ActivePayment = this.paymentService.GetActive(Guid.Parse(id));
+        return View(new PaymentViewModel { OrderId = id});
+    }
 
-        [HttpGet]
-        public IActionResult Index(string id)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Index(PaymentViewModel model)
+    {
+        ViewBag.ActivePayment = this.paymentService.GetActive(Guid.Parse(model.OrderId));
+        try
         {
-            ViewBag.ActivePayment = this.paymentService.GetActive(Guid.Parse(id));
-            return View(new PaymentViewModel { OrderId = id});
+            await this.paymentService.Pay(Guid.Parse(model.OrderId), model.CardNumber, model.CC);
+            this.ViewBag.IsPaid = true;
         }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(PaymentViewModel model)
+        catch (Exception ex)
         {
-            ViewBag.ActivePayment = this.paymentService.GetActive(Guid.Parse(model.OrderId));
-            try
-            {
-                await this.paymentService.Pay(Guid.Parse(model.OrderId), model.CardNumber, model.CC);
-                this.ViewBag.IsPaid = true;
-            }
-            catch (Exception ex)
-            {
-                this.ViewBag.Error = ex.Message;
-                this.ViewBag.IsPaid = false;
-            }
-            return View(model);
+            this.ViewBag.Error = ex.Message;
+            this.ViewBag.IsPaid = false;
         }
+        return View(model);
     }
 }

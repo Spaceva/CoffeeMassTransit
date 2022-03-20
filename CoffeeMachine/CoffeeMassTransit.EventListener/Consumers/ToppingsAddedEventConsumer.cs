@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using CoffeeMassTransit.Messages;
 
-namespace CoffeeMassTransit.EventListener
+namespace CoffeeMassTransit.EventListener;
+
+public class ToppingsAddedEventConsumer : ListenerConsumer<ToppingsAddedEvent>
 {
-    public class ToppingsAddedEventConsumer : ListenerConsumer<ToppingsAddedEvent>
-    {
-        public ToppingsAddedEventConsumer(ILogger<ListenerConsumer<ToppingsAddedEvent>> logger) : base(logger) { }
-    }
+    public ToppingsAddedEventConsumer(ILogger<ListenerConsumer<ToppingsAddedEvent>> logger) : base(logger) { }
 }

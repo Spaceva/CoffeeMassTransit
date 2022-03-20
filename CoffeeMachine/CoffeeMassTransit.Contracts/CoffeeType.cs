@@ -1,16 +1,15 @@
-﻿namespace CoffeeMassTransit.Contracts
+﻿namespace CoffeeMassTransit.Contracts;
+
+public enum CoffeeType
 {
-    public enum CoffeeType
-    {
-        Americano,
-        Black,
-        Cappucino,
-        Espresso,
-        Irish,
-        Latte,
-        Lungo,
-        Macchiato,
-        Mocha,
-        Ristretto
-    }
+    Americano,
+    Black,
+    Cappucino,
+    Espresso,
+    Irish,
+    Latte,
+    Lungo,
+    Macchiato,
+    Mocha,
+    Ristretto
 }

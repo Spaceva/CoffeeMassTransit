@@ -1,15 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MassTransit" Version="7.3.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="MassTransit" Version="8.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CoffeeMassTransit.Contracts\CoffeeMassTransit.Contracts.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\CoffeeMassTransit.Contracts\CoffeeMassTransit.Contracts.csproj" />
+	</ItemGroup>
 
 </Project>

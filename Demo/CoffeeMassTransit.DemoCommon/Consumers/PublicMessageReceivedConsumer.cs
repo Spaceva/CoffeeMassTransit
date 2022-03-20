@@ -2,21 +2,20 @@
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
-namespace CoffeeMassTransit.DemoCommon
+namespace CoffeeMassTransit.DemoCommon;
+
+public class PublicMessageReceivedConsumer : IConsumer<PublicMessageReceived>
 {
-    public class PublicMessageReceivedConsumer : IConsumer<PublicMessageReceived>
+    private readonly ILogger<PublicMessageReceivedConsumer> logger;
+
+    public PublicMessageReceivedConsumer(ILogger<PublicMessageReceivedConsumer> logger)
     {
-        private readonly ILogger<PublicMessageReceivedConsumer> logger;
+        this.logger = logger;
+    }
 
-        public PublicMessageReceivedConsumer(ILogger<PublicMessageReceivedConsumer> logger)
-        {
-            this.logger = logger;
-        }
-
-        public Task Consume(ConsumeContext<PublicMessageReceived> context)
-        {
-            logger?.LogInformation($"My message has been received ! Cool !");
-            return Task.CompletedTask;
-        }
+    public Task Consume(ConsumeContext<PublicMessageReceived> context)
+    {
+        logger?.LogInformation($"My message has been received ! Cool !");
+        return Task.CompletedTask;
     }
 }

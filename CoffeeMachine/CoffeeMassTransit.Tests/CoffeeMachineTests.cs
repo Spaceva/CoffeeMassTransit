@@ -7,34 +7,36 @@ using CoffeeMassTransit.Contracts;
 using CoffeeMassTransit.Core;
 using CoffeeMassTransit.Messages;
 using Xunit;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace CoffeeMassTransit.Tests
+namespace CoffeeMassTransit.Tests;
+
+public class CoffeeMachineTests
 {
-    public class CoffeeMachineTests
+    [Fact]
+    public async Task ShouldConsumeMessage()
     {
-        [Fact]
-        public async Task ShouldConsumeMessage()
-        {
-            using var harness = new InMemoryTestHarness();
-            var consumer = harness.Consumer(() => new CreateBaseCoffeeCommandConsumer(new CoffeeInMemoryRepository(), null));
-
-            await harness.Start();
-            try
+        await using var provider = new ServiceCollection()
+            .AddScoped<ICoffeeRepository, CoffeeInMemoryRepository>()
+            .AddMassTransitTestHarness(cfgHarness =>
             {
-                await harness.InputQueueSendEndpoint.Send<CreateBaseCoffeeCommand>(new { CorrelationId = Guid.NewGuid(), CoffeeType = CoffeeType.Americano, NoTopping = false });
+                cfgHarness.AddConsumer<CreateBaseCoffeeCommandConsumer>();
+            })
+            .BuildServiceProvider(true);
 
-                Assert.True(await harness.Sent.Any<CreateBaseCoffeeCommand>());
+        var harness = provider.GetTestHarness();
+        await harness.Start();
 
-                Assert.True(await harness.Consumed.Any<CreateBaseCoffeeCommand>());
+        var consumer = harness.GetConsumerHarness<CreateBaseCoffeeCommandConsumer>();
+        var sendEndpoint = await harness.GetConsumerEndpoint<CreateBaseCoffeeCommandConsumer>();
 
-                Assert.True(await consumer.Consumed.Any<CreateBaseCoffeeCommand>());
 
-                Assert.True(await harness.Published.Any<Fault<CreateBaseCoffeeCommand>>() || await harness.Published.Any<BaseCoffeeFinishedEvent>());
-            }
-            finally
-            {
-                await harness.Stop();
-            }
-        }
+        await sendEndpoint.Send<CreateBaseCoffeeCommand>(new { CorrelationId = Guid.NewGuid(), CoffeeType = CoffeeType.Americano, NoTopping = false });
+
+        Assert.True(await harness.Sent.Any<CreateBaseCoffeeCommand>());
+
+        Assert.True(await consumer.Consumed.Any<CreateBaseCoffeeCommand>());
+
+        Assert.True(await harness.Published.Any<Fault<CreateBaseCoffeeCommand>>() || await harness.Published.Any<BaseCoffeeFinishedEvent>());
     }
 }

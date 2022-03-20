@@ -1,10 +1,9 @@
 ﻿using MassTransit;
 using System;
 
-namespace CoffeeMassTransit.Messages
+namespace CoffeeMassTransit.Messages;
+
+public interface RequestPaymentCommand : CorrelatedBy<Guid>
 {
-    public interface RequestPaymentCommand : CorrelatedBy<Guid>
-    {
-        float Amount { get; set; }
-    }
+    float Amount { get; set; }
 }

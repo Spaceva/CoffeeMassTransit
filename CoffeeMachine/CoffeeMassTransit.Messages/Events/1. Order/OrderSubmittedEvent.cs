@@ -2,12 +2,11 @@
 using System;
 using CoffeeMassTransit.Contracts;
 
-namespace CoffeeMassTransit.Messages
+namespace CoffeeMassTransit.Messages;
+
+public interface OrderSubmittedEvent : CorrelatedBy<Guid>
 {
-    public interface OrderSubmittedEvent : CorrelatedBy<Guid>
-    {
-        CoffeeType CoffeeType { get; }
-        Topping[] Toppings { get; }
-        string CustomerName { get; }
-    }
+    CoffeeType CoffeeType { get; }
+    Topping[] Toppings { get; }
+    string CustomerName { get; }
 }

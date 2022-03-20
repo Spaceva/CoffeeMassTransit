@@ -2,10 +2,9 @@
 using System;
 using CoffeeMassTransit.Contracts;
 
-namespace CoffeeMassTransit.Messages
+namespace CoffeeMassTransit.Messages;
+
+public interface BaseCoffeeFinishedEvent : CorrelatedBy<Guid>
 {
-    public interface BaseCoffeeFinishedEvent : CorrelatedBy<Guid>
-    {
-        CoffeeType Type { get; }
-    }
+    CoffeeType Type { get; }
 }

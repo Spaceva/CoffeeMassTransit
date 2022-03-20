@@ -2,21 +2,20 @@
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
-namespace CoffeeMassTransit.DemoCommon
+namespace CoffeeMassTransit.DemoCommon;
+
+public class PublicMessageConsumer : IConsumer<PublicMessage>
 {
-    public class PublicMessageConsumer : IConsumer<PublicMessage>
+    private readonly ILogger<PublicMessageConsumer> logger;
+
+    public PublicMessageConsumer(ILogger<PublicMessageConsumer> logger)
     {
-        private readonly ILogger<PublicMessageConsumer> logger;
+        this.logger = logger;
+    }
 
-        public PublicMessageConsumer(ILogger<PublicMessageConsumer> logger)
-        {
-            this.logger = logger;
-        }
-
-        public async Task Consume(ConsumeContext<PublicMessage> context)
-        {
-            logger?.LogInformation($"Received public message #{context.Message.MessageId} : {context.Message.Content}");
-            await context.Publish<PublicMessageReceived>(new { context.Message.MessageId });
-        }
+    public async Task Consume(ConsumeContext<PublicMessage> context)
+    {
+        logger?.LogInformation($"Received public message #{context.Message.MessageId} : {context.Message.Content}");
+        await context.Publish<PublicMessageReceived>(new { context.Message.MessageId });
     }
 }

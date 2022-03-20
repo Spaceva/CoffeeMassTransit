@@ -1,14 +1,15 @@
 ﻿using System;
 using CoffeeMassTransit.Contracts;
 
-namespace CoffeeMassTransit.Core.DAL
-{
-    public class CoffeeDbModel
-    {
-        public Guid Id { get; set; }
-        public CoffeeType Type { get; set; }
-        public string Toppings { get; set; }
+namespace CoffeeMassTransit.Core.DAL;
 
-        public bool Done { get; set; }
-    }
+public class CoffeeDbModel
+{
+    public Guid Id { get; init; }
+    
+    public CoffeeType Type { get; init; }
+
+    public string Toppings { get; init; } = default!;
+
+    public bool Done { get; init; }
 }
