@@ -6,7 +6,7 @@ namespace CoffeeMassTransit.Core;
 
 public interface ICoffeeRepository
 {
-    void Create(Guid coffeeId, CoffeeType coffeeType, bool noTopping);
+    void Create(Guid coffeeId, Guid orderId, CoffeeType coffeeType, bool noTopping);
     void AddToppings(Guid coffeeId, IReadOnlyCollection<Topping> toppings);
     Coffee Get(Guid coffeeId);
     IReadOnlyCollection<Coffee> GetAll();

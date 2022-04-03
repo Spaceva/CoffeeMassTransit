@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using System;
 using CoffeeMassTransit.Common;
 using CoffeeMassTransit.DemoCommon;
+using CoffeeMassTransit.DemoCommon.Extensions;
 
 namespace CoffeeMassTransit.DemoServiceA;
 
@@ -30,10 +31,8 @@ public class Program
             cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
             cfgGlobal.AddConsumersFromNamespaceContaining<PublicMessageConsumer>();
             cfgGlobal.AddConsumersFromNamespaceContaining<InformationResponseConsumer>();
-            cfgGlobal.AddRequestClient<StatusCheck>();
         });
         services.AddHostedService<InformationRequestService>();
-        services.AddHostedService<StatusChecker>();
     }
 
     private static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabbitMqBusFactoryConfigurator cfgBus)
@@ -52,5 +51,7 @@ public class Program
             cfgEndpoint.ConfigureConsumers(registrationContext);
             cfgEndpoint.PurgeOnStartup = true;
         });
+
+        cfgBus.ConfigureMessagesTopology();
     }
 }

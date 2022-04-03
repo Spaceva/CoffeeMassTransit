@@ -16,9 +16,9 @@ public class CoffeeInMemoryRepository : ICoffeeRepository
         coffee.Toppings.AddRange(toppings);
     }
 
-    public void Create(Guid coffeeId, CoffeeType coffeeType, bool noTopping)
+    public void Create(Guid coffeeId, Guid orderId, CoffeeType coffeeType, bool noTopping)
     {
-        Data.Add(coffeeId, new Coffee { Id = coffeeId, Type = coffeeType, Toppings = new List<Topping>(), Done = noTopping });
+        Data.Add(coffeeId, new Coffee { Id = coffeeId, OrderId = orderId, Type = coffeeType, Toppings = new List<Topping>(), Done = noTopping });
     }
 
     public Coffee Get(Guid coffeeId)

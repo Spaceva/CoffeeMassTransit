@@ -7,6 +7,8 @@ public class Coffee
 {
     public Guid Id { get; init; }
 
+    public Guid OrderId { get; set; }
+
     public CoffeeType Type { get; init; }
 
     public List<Topping> Toppings { get; init; } = new List<Topping>();

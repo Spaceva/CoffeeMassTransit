@@ -1,0 +1,28 @@
+{
+  "Serilog": {
+    "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File" ],
+    "MinimumLevel": {
+      "Default": "Warning",
+      "Override": {
+        "MassTransit": "Information",
+        "Microsoft.Hosting.Lifetime": "Information",
+        "CoffeeMassTransit": "Information"
+      }
+    },
+    "WriteTo:Console": {
+      "Name": "Console",
+      "Args": {
+        "outputTemplate": "[{Timestamp:HH:mm:ss.fff} {SourceContext}]{NewLine}[{Level}]{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}"
+      }
+    },
+    "WriteTo:File": {
+      "Name": "File",
+      "Args": {
+        "path": "App_Data/Logs/log-.txt",
+        "rollingInterval": "Day",
+        "outputTemplate": "[{Timestamp:HH:mm:ss.fff} {SourceContext}]{NewLine}[{Level}]{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}"
+      }
+    },
+    "Enrich": [ "FromLogContext" ]
+  }
+}

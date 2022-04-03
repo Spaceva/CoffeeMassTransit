@@ -16,7 +16,7 @@ public class CoffeeMachineSaga : ISaga,
     Orchestrates<BaseCoffeeFinishedEvent>,
     Orchestrates<ToppingsAddedEvent>
 {
-    [ExplicitKey] 
+    [ExplicitKey]
     public Guid CorrelationId { get; set; }
     public string CustomerName { get; set; } = default!;
     public string? ToppingsRequested { get; set; }
@@ -28,7 +28,7 @@ public class CoffeeMachineSaga : ISaga,
     public readonly Uri requestPaymentEndpoint = new($"queue:{KebabCaseEndpointNameFormatter.Instance.SanitizeName(nameof(RequestPaymentCommand))}");
     public readonly Uri createBaseCoffeeEndpoint = new($"queue:{KebabCaseEndpointNameFormatter.Instance.SanitizeName(nameof(CreateBaseCoffeeCommand))}");
     public readonly Uri addToppingsEndpoint = new($"queue:{KebabCaseEndpointNameFormatter.Instance.SanitizeName(nameof(AddToppingsCommand))}");
-   
+
     public async Task Consume(ConsumeContext<OrderSubmittedEvent> context)
     {
         this.CustomerName = context.Message.CustomerName;
@@ -38,13 +38,12 @@ public class CoffeeMachineSaga : ISaga,
         var sendEndpoint = await context.GetSendEndpoint(requestPaymentEndpoint);
         await sendEndpoint.Send<RequestPaymentCommand>(new { this.CorrelationId, this.Amount }, context.CancellationToken);
         this.State = nameof(CoffeeMachineSagaStates.AwaitingPayment);
-
     }
 
     public async Task Consume(ConsumeContext<PaymentAcceptedEvent> context)
     {
         var sendEndpoint = await context.GetSendEndpoint(createBaseCoffeeEndpoint);
-        await sendEndpoint.Send<CreateBaseCoffeeCommand>(new { this.CorrelationId, CoffeeType = this.CoffeeTypeRequested, NoTopping = string.IsNullOrWhiteSpace(this.ToppingsRequested) }, context.CancellationToken);
+        await sendEndpoint.Send<CreateBaseCoffeeCommand>(new { this.CorrelationId, OrderId = this.CorrelationId, CoffeeType = this.CoffeeTypeRequested, NoTopping = string.IsNullOrWhiteSpace(this.ToppingsRequested) }, context.CancellationToken);
         this.State = nameof(CoffeeMachineSagaStates.Paid);
     }
 

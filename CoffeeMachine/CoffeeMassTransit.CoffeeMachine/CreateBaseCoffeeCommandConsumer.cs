@@ -24,7 +24,7 @@ public class CreateBaseCoffeeCommandConsumer : IConsumer<CreateBaseCoffeeCommand
         await Task.Delay(TimeSpan.FromSeconds(12), context.CancellationToken);
         if (DateTime.Now.Second % 7 == 0)
             throw new EmptyTankException("Empty Tank. Please refill.");
-        coffeeRepository.Create(context.CorrelationId!.Value, context.Message.CoffeeType, context.Message.NoTopping);
+        coffeeRepository.Create(context.CorrelationId!.Value, context.Message.OrderId, context.Message.CoffeeType, context.Message.NoTopping);
         await context.Publish<BaseCoffeeFinishedEvent>(new { context.CorrelationId }, context.CancellationToken);
         this.logger?.LogInformation($"Finished !");
     }

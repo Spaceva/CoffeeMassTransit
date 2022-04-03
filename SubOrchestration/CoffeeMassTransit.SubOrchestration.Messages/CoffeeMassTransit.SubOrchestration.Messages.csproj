@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MassTransit" Version="8.0.0" />
+		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\CoffeeMachine\CoffeeMassTransit.Contracts\CoffeeMassTransit.Contracts.csproj" />
+	</ItemGroup>
+
+</Project>

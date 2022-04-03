@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using System;
 using CoffeeMassTransit.Common;
 using CoffeeMassTransit.DemoCommon;
+using CoffeeMassTransit.DemoCommon.Extensions;
 
 namespace CoffeeMassTransit.DemoServiceB;
 
@@ -27,8 +28,26 @@ public class Program
         services.Configure<RabbitMQConfiguration>(hostingContext.Configuration.GetSection("RabbitMQ"));
         services.AddMassTransit(cfgGlobal =>
         {
-            cfgGlobal.AddConsumersFromNamespaceContaining<InformationRequestConsumer>();
-            cfgGlobal.AddConsumersFromNamespaceContaining<PublicMessageConsumer>();
+            cfgGlobal.AddConsumer<PublicMessageConsumer>().Endpoint(e =>
+            {
+                e.Name = $"name-i-picked-for-{nameof(PublicMessageConsumer)}";
+            });
+            cfgGlobal.AddConsumer<PublicMessageReceivedConsumer>().Endpoint(e =>
+            {
+                e.Name = $"name-i-picked-for-{nameof(PublicMessageReceivedConsumer)}";
+            });
+            cfgGlobal.AddConsumer<FaultedInformationRequestConsumer>().Endpoint(e =>
+            {
+                e.Name = $"name-i-picked-for-{nameof(FaultedInformationRequestConsumer)}";
+            });
+            cfgGlobal.AddConsumer<InformationRequestConsumer>().Endpoint(e =>
+            {
+                e.Name = $"name-i-picked-for-{nameof(InformationRequestConsumer)}";
+            });
+            cfgGlobal.AddConsumer<StatusCheckConsumer>().Endpoint(e =>
+            {
+                e.Name = $"name-i-picked-for-{nameof(StatusCheckConsumer)}";
+            });
             cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
         });
         services.AddHostedService<PublicMessageSpammer>();
@@ -54,5 +73,7 @@ public class Program
             });
             cfgEndpoint.PurgeOnStartup = true;
         });
+
+        cfgBus.ConfigureMessagesTopology();
     }
 }

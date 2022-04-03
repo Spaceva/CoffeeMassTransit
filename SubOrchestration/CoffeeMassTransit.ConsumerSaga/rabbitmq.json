@@ -1,0 +1,8 @@
+{
+  "RabbitMQ": {
+    "Host": "localhost",
+    "VirtualHost": "webinar-coffee",
+    "Username": "webinar",
+    "Password": "webinar"
+  }
+}

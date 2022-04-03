@@ -6,7 +6,9 @@ namespace CoffeeMassTransit.Core.DAL;
 public class CoffeeDbModel
 {
     public Guid Id { get; init; }
-    
+
+    public Guid OrderId { get; init; }
+
     public CoffeeType Type { get; init; }
 
     public string Toppings { get; init; } = default!;

@@ -101,7 +101,7 @@ static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabb
         cfgRabbitMq.Password(rabbitMQConfiguration.Password);
     });
 
-    cfgBus.ReceiveEndpoint(KebabCaseEndpointNameFormatter.Instance.SanitizeName(nameof(RequestPaymentCommand)),
+    cfgBus.ReceiveEndpoint("commands",
                         cfgEndpoint =>
                         {
                             cfgEndpoint.ConfigureConsumer<RequestPaymentCommandConsumer>(registrationContext);
@@ -109,5 +109,9 @@ static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabb
                             {
                                 cfgRetry.Interval(3, TimeSpan.FromSeconds(5));
                             });
+                            cfgEndpoint.DiscardSkippedMessages();
+                            cfgEndpoint.DiscardFaultedMessages();
                         });
+
+    cfgBus.ConfigureOrchestrationMessagesTopology();
 }

@@ -33,7 +33,7 @@
             {
                 var value = coffee.Done ? 100 : (coffee.Toppings?.Count > 0 ? 66 : 33);
                 <div href="#" class="list-group-item list-group-item-action list-group-item-light">
-                    <div>Coffee - <b>@(value == 100 ? "Done": "In progress")</b></div>
+                    <div>Coffee - @coffee.Id - <b>@(value == 100 ? "Done": "In progress")</b></div>
                     <div class="progress">
                         <div class="progress-bar progress-bar-striped progress-bar-animated @(value == 100 ? "bg-success":string.Empty)" role="progressbar" aria-valuenow="@(value)" aria-valuemin="0" aria-valuemax="100" style="width: @(value)%"></div>
                     </div>

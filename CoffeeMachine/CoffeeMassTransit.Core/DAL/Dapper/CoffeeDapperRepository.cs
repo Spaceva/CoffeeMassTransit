@@ -15,13 +15,13 @@ public class CoffeeDapperRepository : ICoffeeRepository
         this.sqlConnectionFactory = sqlConnectionFactory;
     }
 
-    public void Create(Guid coffeeId, CoffeeType coffeeType, bool noTopping)
+    public void Create(Guid coffeeId, Guid orderId, CoffeeType coffeeType, bool noTopping)
     {
-        var query = @$"INSERT INTO   [Coffees] ({nameof(Coffee.Id)}, {nameof(Coffee.Type)}, {nameof(Coffee.Done)}) 
+        var query = @$"INSERT INTO   [Coffees] ({nameof(Coffee.Id)}, {nameof(Coffee.OrderId)}, {nameof(Coffee.Type)}, {nameof(Coffee.Done)}) 
                         OUTPUT          Inserted.Id
-                        VALUES          (@{nameof(coffeeId)}, @{nameof(coffeeType)}, @{nameof(noTopping)})";
+                        VALUES          (@{nameof(coffeeId)}, @{nameof(orderId)}, @{nameof(coffeeType)}, @{nameof(noTopping)})";
         using var conn = sqlConnectionFactory.Create();
-        conn.ExecuteScalar(query, new { coffeeId, coffeeType, noTopping });
+        conn.ExecuteScalar(query, new { coffeeId, orderId, coffeeType, noTopping });
     }
 
     public void AddToppings(Guid coffeeId, IReadOnlyCollection<Topping> toppings)
@@ -49,6 +49,6 @@ public class CoffeeDapperRepository : ICoffeeRepository
 
     private Coffee GetCoffeeFromDbModel(CoffeeDbModel coffeeDb)
     {
-        return new Coffee { Id = coffeeDb.Id, Done = coffeeDb.Done, Type = coffeeDb.Type, Toppings = coffeeDb.Toppings?.Split(",").Select(t => Enum.Parse<Topping>(t))?.ToList() ?? new List<Topping>() };
+        return new Coffee { Id = coffeeDb.Id, OrderId = coffeeDb.OrderId, Done = coffeeDb.Done, Type = coffeeDb.Type, Toppings = coffeeDb.Toppings?.Split(",").Select(t => Enum.Parse<Topping>(t))?.ToList() ?? new List<Topping>() };
     }
 }
