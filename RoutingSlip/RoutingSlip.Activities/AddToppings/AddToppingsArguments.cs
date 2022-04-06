@@ -2,7 +2,7 @@
 
 namespace RoutingSlip.Activities;
 
-public interface HandlePaymentArgument
+public interface AddToppingsArguments
 {
-    float Amount { get; }
+    Topping[] Toppings { get; }
 }

@@ -1,32 +1,24 @@
-﻿using CoffeeMassTransit.Messages;
+﻿using CoffeeMassTransit.Core.DAL;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
 namespace RoutingSlip.Activities;
-public class SubmitOrderActivity : IActivity<SubmitOrderArguments, OrderSubmitted>
+public class SubmitOrderActivity : IExecuteActivity<SubmitOrderArguments>
 {
+    private readonly IPaymentRepository paymentRepository;
     private readonly ILogger<SubmitOrderActivity> logger;
 
-    public SubmitOrderActivity(ILogger<SubmitOrderActivity> logger)
+    public SubmitOrderActivity(IPaymentRepository paymentRepository, ILogger<SubmitOrderActivity> logger)
     {
+        this.paymentRepository = paymentRepository;
         this.logger = logger;
-    }
-
-    public Task<CompensationResult> Compensate(CompensateContext<OrderSubmitted> context)
-    {
-        this.logger.LogInformation("Error happened : {CustomerName}", context.Log.CustomerName);
-        return Task.FromResult(context.Compensated());
     }
 
     public async Task<ExecutionResult> Execute(ExecuteContext<SubmitOrderArguments> context)
     {
-        try
-        {
-            return context.Completed<OrderSubmitted>(new { context.CorrelationId, CoffeeType = context.Arguments.CoffeeTypeRequested, Toppings = context.Arguments.ToppingsRequested, CustomerName = context.Arguments.CustomerName });
-        }
-        catch (Exception ex)
-        {
-            return context.Faulted(ex);
-        }
+        await Task.Delay(TimeSpan.FromSeconds(3));
+        this.paymentRepository.Create(context.TrackingNumber, context.Arguments.Amount);
+        logger.LogInformation("Order created ({TrackingNumber}, {Amount})", context.TrackingNumber, context.Arguments.Amount);
+        return context.Completed();
     }
 }

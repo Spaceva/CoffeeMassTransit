@@ -4,9 +4,10 @@
     "MinimumLevel": {
       "Default": "Warning",
       "Override": {
-        "MassTransit": "Information",
-        "Microsoft.Hosting.Lifetime": "Information",
-        "CoffeeMassTransit": "Information"
+        "MassTransit": "Warning",
+        "Microsoft.Hosting.Lifetime": "Warning",
+        "CoffeeMassTransit": "Information",
+        "RoutingSlip": "Information"
       }
     },
     "WriteTo:Console": {

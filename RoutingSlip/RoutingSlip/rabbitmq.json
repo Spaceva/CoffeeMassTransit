@@ -1,7 +1,7 @@
 {
   "RabbitMQ": {
     "Host": "localhost",
-    "VirtualHost": "webinar-demo",
+    "VirtualHost": "webinar-routing-slip",
     "Username": "webinar",
     "Password": "webinar"
   }

@@ -30,8 +30,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\CoffeeMachine\CoffeeMassTransit.Contracts\CoffeeMassTransit.Contracts.csproj" />
-	  <ProjectReference Include="..\CoffeeMachine\CoffeeMassTransit.Messages\CoffeeMassTransit.Messages.csproj" />
+	  <ProjectReference Include="..\..\CoffeeMachine\CoffeeMassTransit.Contracts\CoffeeMassTransit.Contracts.csproj" />
+	  <ProjectReference Include="..\..\CoffeeMachine\CoffeeMassTransit.Core\CoffeeMassTransit.Core.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -1,11 +1,11 @@
 using Serilog;
 using MassTransit;
-using CoffeeMassTransit.Core.DAL;
-using CoffeeMassTransit.Common;
-using CoffeeMassTransit.Core;
 using Microsoft.Extensions.Options;
 using RoutingSlip;
 using RoutingSlip.Activities;
+using CoffeeMassTransit.Common;
+using CoffeeMassTransit.Core.DAL;
+using CoffeeMassTransit.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,10 +42,11 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     services.AddMassTransit(cfgGlobal =>
     {
         cfgGlobal.AddActivitiesFromNamespaceContaining<SubmitOrderActivity>();
+        cfgGlobal.AddConsumer<CoffeeRoutingSlipEventsConsumer>();
         cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
     });
-    services.AddSingleton<IPaymentRepository, PaymentDapperRepository>();
-    services.AddSingleton<ICoffeeRepository, CoffeeDapperRepository>();
+    services.AddSingleton<IPaymentRepository, PaymentInMemoryRepository>();
+    services.AddSingleton<ICoffeeRepository, CoffeeInMemoryRepository>();
     services.AddControllersWithViews();
     services.AddHealthChecks();
     services.AddHostedService<TestActivitiesOrchestrationBackgroundService>();
@@ -91,18 +92,10 @@ static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabb
         cfgRabbitMq.Password(rabbitMQConfiguration.Password);
     });
 
-    cfgBus.ReceiveEndpoint("step-1", cfgEndpoint =>
+    cfgBus.ConfigureCoffeeActivitiesEndpoint(registrationContext);
+    cfgBus.ConfigureRoutingSlipMessagesTopology();
+    cfgBus.ReceiveEndpoint("events", cfgEndpoint =>
     {
-        cfgEndpoint.ConfigureActivityExecute(registrationContext, typeof(SubmitOrderActivity), new Uri("queue:step-1-c"));
-    });
-
-    cfgBus.ReceiveEndpoint("step-1-c", cfgEndpoint =>
-    {
-        cfgEndpoint.ConfigureActivityCompensate(registrationContext, typeof(SubmitOrderActivity));
-    });
-
-    cfgBus.ReceiveEndpoint("step-2", cfgEndpoint =>
-    {
-        cfgEndpoint.ConfigureExecuteActivity(registrationContext, typeof(HandlePaymentActivity));
+        cfgEndpoint.ConfigureConsumer<CoffeeRoutingSlipEventsConsumer>(registrationContext);
     });
 }

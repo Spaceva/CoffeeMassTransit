@@ -1,5 +1,4 @@
-﻿using CoffeeMassTransit.Core;
-using CoffeeMassTransit.SubOrchestration.Messages;
+﻿using CoffeeMassTransit.SubOrchestration.Messages;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using System;

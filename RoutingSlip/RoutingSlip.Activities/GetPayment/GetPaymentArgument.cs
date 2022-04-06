@@ -1,6 +1,6 @@
 ﻿namespace RoutingSlip.Activities;
 
-public interface SubmitOrderArguments
+public interface GetPaymentArgument
 {
     float Amount { get; }
 }

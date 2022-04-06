@@ -3,6 +3,6 @@ using MassTransit;
 
 namespace RoutingSlip.Activities;
 
-public interface OrderSubmitted : CorrelatedBy<Guid>
+public interface ToppingsAdded : CorrelatedBy<Guid>
 {
 }

@@ -1,0 +1,40 @@
+[15:20:17.886 RoutingSlip.TestActivitiesOrchestrationBackgroundService]
+[Information]
+Started Orchestration "9c640000-0faa-0009-5122-08da163ddcb8"
+
+[15:20:21.893 RoutingSlip.Activities.SubmitOrderActivity]
+[Information]
+Order created ("9c640000-0faa-0009-5122-08da163ddcb8", 10)
+
+[15:20:21.973 RoutingSlip.CoffeeRoutingSlipEventsConsumer]
+[Information]
+Activity 'Création de la commande' with TrackingId "9c640000-0faa-0009-5122-08da163ddcb8" finished in "00:00:03.0780957" at "2022-04-04T13:20:18.8215681Z"
+
+[15:20:25.050 RoutingSlip.Activities.SubmitOrderActivity]
+[Information]
+Payment "9c640000-0faa-0009-5122-08da163ddcb8" done
+
+[15:20:25.063 RoutingSlip.CoffeeRoutingSlipEventsConsumer]
+[Information]
+Activity 'Paiement facture' with TrackingId "9c640000-0faa-0009-5122-08da163ddcb8" finished in "00:00:03.0218910" at "2022-04-04T13:20:22.0338570Z"
+
+[15:20:28.183 RoutingSlip.Activities.MakeCoffeeActivity]
+[Information]
+Coffee for Order "9c640000-0faa-0009-5122-08da163ddcb8" made
+
+[15:20:28.193 RoutingSlip.CoffeeRoutingSlipEventsConsumer]
+[Information]
+Activity 'Création du café' with TrackingId "9c640000-0faa-0009-5122-08da163ddcb8" finished in "00:00:03.0301544" at "2022-04-04T13:20:25.1579346Z"
+
+[15:20:31.238 RoutingSlip.Activities.ServeCoffeeActivity]
+[Information]
+Coffee "9c640000-0faa-0009-5122-08da163ddcb8" served.
+
+[15:20:31.247 RoutingSlip.CoffeeRoutingSlipEventsConsumer]
+[Information]
+Activity 'Livraison du café' with TrackingId "9c640000-0faa-0009-5122-08da163ddcb8" finished in "00:00:03.0094420" at "2022-04-04T13:20:28.2327031Z"
+
+[15:20:31.267 RoutingSlip.CoffeeRoutingSlipEventsConsumer]
+[Information]
+Orchestration with TrackingId "9c640000-0faa-0009-5122-08da163ddcb8" completed after "00:00:13.4186819" at "2022-04-04T13:20:31.2421451Z"
+

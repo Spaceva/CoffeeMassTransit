@@ -2,6 +2,6 @@
 
 namespace RoutingSlip.Activities;
 
-public interface PaymentAccepted : CorrelatedBy<Guid>
+public interface CoffeeMade : CorrelatedBy<Guid>
 {
 }
