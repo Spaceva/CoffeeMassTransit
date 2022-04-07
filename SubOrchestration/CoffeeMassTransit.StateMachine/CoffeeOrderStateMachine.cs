@@ -3,6 +3,7 @@ using System;
 using CoffeeMassTransit.Core;
 using CoffeeMassTransit.Messages;
 using CoffeeMassTransit.SubOrchestration.Messages;
+using CoffeeMassTransit.Common.AuditedStateMachine;
 
 namespace CoffeeMassTransit.SubOrchestration.StateMachine;
 
@@ -21,27 +22,27 @@ public class CoffeeOrderStateMachine : MassTransitStateMachine<CoffeeOrderState>
         InstanceState(x => x.CurrentState);
 
         Initially(When(OrderSubmittedEvent)
-             .Then(x =>
+             .SaveInput((message) => new CoffeeOrderStateInput
              {
-                 x.Saga.CustomerName = x.Message.CustomerName;
-                 x.Saga.CoffeeTypeRequested = x.Message.CoffeeType;
-                 x.Saga.ToppingsRequested = string.Join(",", x.Message.Toppings);
-                 x.Saga.Amount = CoffeePriceCalculator.Compute(x.Message.CoffeeType, x.Message.Toppings);
+                 CustomerName = message.CustomerName,
+                 CoffeeTypeRequested = message.CoffeeType,
+                 ToppingsRequested = string.Join(",", message.Toppings),
+                 Amount = CoffeePriceCalculator.Compute(message.CoffeeType, message.Toppings),
              })
-             .SendAsync(consumersEndpoint, context => context.Init<RequestPaymentCommand>(new { context.Saga.CorrelationId, context.Saga.Amount }))
-             .TransitionTo(AwaitingPayment),
-             Ignore(PaymentAcceptedEvent));
+             .SendAsync(consumersEndpoint, context => context.Init<RequestPaymentCommand>(new { context.Saga.CorrelationId, context.Saga.Input!.Amount }))
+             .StartAndTransitionTo(AwaitingPayment));
 
         During(AwaitingPayment,
                 When(PaymentAcceptedEvent)
-                    .SendAsync(subOrchestrationEndpoint, context => context.Init<CreateCoffeeCommand>(new { CorrelationId = NewId.Next(), OrderId = context.Saga.CorrelationId, CoffeeType = context.Saga.CoffeeTypeRequested, Toppings = context.Saga.ToppingsRequested?.Split(',') ?? Array.Empty<string>() }))
-                    .TransitionTo(Paid),
+                    .SendAsync(subOrchestrationEndpoint, context => context.Init<CreateCoffeeCommand>(new { CorrelationId = NewId.Next(), OrderId = context.Saga.CorrelationId, CoffeeType = context.Saga.Input!.CoffeeTypeRequested, Toppings = context.Saga.Input.ToppingsRequested?.Split(',') ?? Array.Empty<string>() }))
+                    .SaveAndTransitionTo(Paid),
                 When(PaymentRefusedEvent)
-                    .SendAsync(consumersEndpoint, context => context.Init<RequestPaymentCommand>(new { context.Saga.CorrelationId, context.Saga.Amount })));
+                    .SendAsync(consumersEndpoint, context => context.Init<RequestPaymentCommand>(new { context.Saga.CorrelationId, context.Saga.Input!.Amount }))
+                    .Save());
 
         During(Paid,
             When(CoffeeServedEvent)
-                .Finalize());
+                .End());
     }
 
     public State AwaitingPayment { get; private set; } = default!;

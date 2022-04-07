@@ -19,20 +19,20 @@ public class PaymentService
         this.publishEndpoint = publishEndpoint;
     }
 
-    public ulong Create(Guid orderId, float amount) => this.paymentRepository.Create(orderId, amount);
-    public IReadOnlyDictionary<Guid, List<Payment>> GetAll() => this.paymentRepository.GetAll() ?? new Dictionary<Guid, List<Payment>>();
-    public IReadOnlyCollection<Payment> Get(Guid orderId) => this.paymentRepository.Get(orderId);
-    public Payment GetActive(Guid orderId) => this.paymentRepository.GetActive(orderId);
+    public ulong Create(Guid orderId, float amount) => paymentRepository.Create(orderId, amount);
+    public IReadOnlyDictionary<Guid, List<Payment>> GetAll() => paymentRepository.GetAllByOrderId() ?? new Dictionary<Guid, List<Payment>>();
+    public IReadOnlyCollection<Payment> Get(Guid orderId) => paymentRepository.Get(orderId);
+    public Payment GetActive(Guid orderId) => paymentRepository.GetActive(orderId);
     public async Task Pay(Guid orderId, string creditcard, string cc)
     {
         try
         {
-            this.paymentRepository.Pay(orderId, creditcard, cc);
-            await this.publishEndpoint.Publish<PaymentAcceptedEvent>(new { CorrelationId = orderId });
+            paymentRepository.Pay(orderId, creditcard, cc);
+            await publishEndpoint.Publish<PaymentAcceptedEvent>(new { CorrelationId = orderId });
         }
         catch (Exception ex)
         {
-            await this.publishEndpoint.Publish<PaymentRefusedEvent>(new { CorrelationId = orderId, Error = ex.Message });
+            await publishEndpoint.Publish<PaymentRefusedEvent>(new { CorrelationId = orderId, Error = ex.Message });
             throw;
         }
     }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CoffeeMassTransit.Contracts;
-using CoffeeMassTransit.Core;
+using CoffeeMassTransit.Core.DAL;
 
 namespace CoffeeMassTransit.Web;
 
@@ -14,6 +14,7 @@ public class CoffeeService
         this.coffeeRepository = coffeeRepository;
     }
 
-    public Coffee Get(Guid coffeeId) => this.coffeeRepository.Get(coffeeId);
-    public IReadOnlyCollection<Coffee> GetAll() => this.coffeeRepository.GetAll() ?? new Coffee[0];
+    public Coffee Get(Guid coffeeId) => coffeeRepository.Get(coffeeId);
+
+    public IReadOnlyCollection<Coffee> GetAll() => coffeeRepository.GetAll() ?? Array.Empty<Coffee>();
 }

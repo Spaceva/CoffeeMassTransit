@@ -6,7 +6,7 @@ using CoffeeMassTransit.Contracts;
 
 namespace CoffeeMassTransit.Core.DAL;
 
-public class PaymentDapperRepository : IPaymentRepository
+internal class PaymentDapperRepository : IPaymentRepository
 {
     private readonly SqlConnectionFactory sqlConnectionFactory;
 
@@ -28,7 +28,10 @@ public class PaymentDapperRepository : IPaymentRepository
     public void Pay(Guid orderId, string creditcard, string cc)
     {
         if (cc == "999")
+        {
             FailToPay(orderId);
+        }
+
         var query = @$"UPDATE   [Payments] SET {nameof(Payment.IsPaid)}  = 1 WHERE {nameof(Payment.OrderId)} = @{nameof(orderId)} AND {nameof(Payment.IsValid)} = 1";
         using var conn = sqlConnectionFactory.Create();
         conn.Execute(query, new { orderId });
@@ -56,7 +59,7 @@ public class PaymentDapperRepository : IPaymentRepository
         return conn.QuerySingleOrDefault<Payment>(query, new { orderId });
     }
 
-    public IReadOnlyDictionary<Guid, List<Payment>> GetAll()
+    public IReadOnlyDictionary<Guid, List<Payment>> GetAllByOrderId()
     {
         var query = $"SELECT * FROM [Payments]";
         using var conn = sqlConnectionFactory.Create();
@@ -65,7 +68,10 @@ public class PaymentDapperRepository : IPaymentRepository
         foreach (var payment in payments)
         {
             if (!result.ContainsKey(payment.OrderId))
+            {
                 result.Add(payment.OrderId, new List<Payment>());
+            }
+
             result[payment.OrderId].Add(payment);
         }
         return result;

@@ -7,9 +7,9 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="MassTransit" Version="8.0.0" />
+		<PackageReference Include="MassTransit" Version="8.0.1" />
 		<PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.3.1" />
-		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.0" />
+		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.1" />
 		<PackageReference Include="Serilog" Version="2.10.0" />
 		<PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
 		<PackageReference Include="Serilog.Enrichers.Context" Version="4.2.0" />
@@ -28,6 +28,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\CoffeeMassTransit.Common\CoffeeMassTransit.Common.csproj" />
 		<ProjectReference Include="..\CoffeeMassTransit.Core\CoffeeMassTransit.Core.csproj" />
+		<ProjectReference Include="..\CoffeeMassTransit.DAL.Mongo\CoffeeMassTransit.DAL.Mongo.csproj" />
 		<ProjectReference Include="..\CoffeeMassTransit.Messages\CoffeeMassTransit.Messages.csproj" />
 	</ItemGroup>
 

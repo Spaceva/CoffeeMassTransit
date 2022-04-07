@@ -2,6 +2,7 @@
 using System;
 using CoffeeMassTransit.Messages;
 using CoffeeMassTransit.SubOrchestration.Messages;
+using CoffeeMassTransit.Common.AuditedStateMachine;
 
 namespace CoffeeMassTransit.SubOrchestration.CoffeeStateMachine;
 
@@ -20,36 +21,36 @@ public class CoffeeStateMachine : MassTransitStateMachine<CoffeeMachineState>
         InstanceState(x => x.CurrentState);
 
         Initially(When(CreateCoffeeCommand)
-             .Then(x =>
+             .SaveInput(message => new CoffeeMachineStateInput
              {
-                 x.Saga.CoffeeTypeRequested = x.Message.CoffeeType;
-                 x.Saga.ToppingsRequested = string.Join(",", x.Message.Toppings);
-                 x.Saga.OrderId = x.Message.OrderId;
+                 CoffeeTypeRequested = message.CoffeeType,
+                 ToppingsRequested = string.Join(",", message.Toppings),
+                 OrderId = message.OrderId
              })
              .SendAsync(subOrchestrationCommandsConsumersEndpoints, context => context.Init<CheckCoffeeTankCommand>(new { context.Saga.CorrelationId }))
-             .TransitionTo(CheckingCoffeeTank));
+             .StartAndTransitionTo(CheckingCoffeeTank));
 
         During(CheckingCoffeeTank,
                 When(CoffeeTankCheckedEvent)
                     .SendAsync(subOrchestrationCommandsConsumersEndpoints, context => context.Init<CheckMilkTankCommand>(new { context.Saga.CorrelationId }))
-                    .TransitionTo(CheckingMilkTank));
+                    .SaveAndTransitionTo(CheckingMilkTank));
 
         During(CheckingMilkTank,
                 When(MilkTankCheckedEvent)
-                    .SendAsync(subOrchestrationCommandsConsumersEndpoints, context => context.Init<MakeCoffeeCommand>(new { context.Saga.CorrelationId, context.Saga.OrderId, CoffeeType = context.Saga.CoffeeTypeRequested, NoToppings = string.IsNullOrWhiteSpace(context.Saga.ToppingsRequested) }))
-                    .TransitionTo(MakingCoffee));
+                    .SendAsync(subOrchestrationCommandsConsumersEndpoints, context => context.Init<MakeCoffeeCommand>(new { context.Saga.CorrelationId, context.Saga.Input!.OrderId, CoffeeType = context.Saga.Input!.CoffeeTypeRequested, NoToppings = string.IsNullOrWhiteSpace(context.Saga.Input.ToppingsRequested) }))
+                    .SaveAndTransitionTo(MakingCoffee));
 
         During(MakingCoffee,
             When(CoffeeMadeEvent)
-                .IfElse(x => string.IsNullOrWhiteSpace(x.Saga.ToppingsRequested),
+                .IfElse(x => string.IsNullOrWhiteSpace(x.Saga.Input?.ToppingsRequested),
                     x => x.Finalize(),
-                    x => x.SendAsync(subOrchestrationCommandsConsumersEndpoints, context => context.Init<AddToppingsCommand>(new { context.Saga.CorrelationId, Toppings = context.Saga.ToppingsRequested!.Split(',') }))
-                    .TransitionTo(AddingToppings)));
+                    x => x.SendAsync(subOrchestrationCommandsConsumersEndpoints, context => context.Init<AddToppingsCommand>(new { context.Saga.CorrelationId, Toppings = context.Saga.Input!.ToppingsRequested!.Split(',') }))
+                    .SaveAndTransitionTo(AddingToppings)));
 
         During(AddingToppings,
                 When(ToppingsAddedEvent)
-                    .PublishAsync(context => context.Init<CoffeeServedEvent>(new { CorrelationId = context.Saga.OrderId, CoffeeId = context.Saga.CorrelationId }))
-                    .Finalize());
+                    .PublishAsync(context => context.Init<CoffeeServedEvent>(new { CorrelationId = context.Saga.Input!.OrderId, CoffeeId = context.Saga.CorrelationId }))
+                    .End());
     }
 
     public State CheckingCoffeeTank { get; private set; } = default!;

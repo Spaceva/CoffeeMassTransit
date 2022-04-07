@@ -8,6 +8,7 @@ using CoffeeMassTransit.Core;
 using CoffeeMassTransit.Messages;
 using Xunit;
 using Microsoft.Extensions.DependencyInjection;
+using CoffeeMassTransit.Core.DAL;
 
 namespace CoffeeMassTransit.Tests;
 

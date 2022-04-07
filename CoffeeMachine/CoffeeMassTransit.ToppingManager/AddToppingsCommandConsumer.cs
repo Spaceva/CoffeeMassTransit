@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using CoffeeMassTransit.Core;
 using CoffeeMassTransit.Messages;
+using CoffeeMassTransit.Core.DAL;
 
 namespace CoffeeMassTransit.ToppingManager;
 
@@ -20,10 +20,10 @@ public class AddToppingsCommandConsumer : IConsumer<AddToppingsCommand>
 
     public async Task Consume(ConsumeContext<AddToppingsCommand> context)
     {
-        this.logger?.LogInformation("Consuming {CommandName} - {CorrelationId}... Waiting 8s", nameof(AddToppingsCommand), context.Message.CorrelationId);
+        logger?.LogInformation("Consuming {CommandName} - {CorrelationId}... Waiting 8s", nameof(AddToppingsCommand), context.Message.CorrelationId);
         await Task.Delay(TimeSpan.FromSeconds(8), context.CancellationToken);
-        this.coffeeRepository.AddToppings(context.CorrelationId!.Value, context.Message.Toppings);
+        coffeeRepository.AddToppings(context.CorrelationId!.Value, context.Message.Toppings);
         await context.Publish<ToppingsAddedEvent>(new { context.CorrelationId, context.Message.Toppings }, context.CancellationToken);
-        this.logger?.LogInformation($"Finished !");
+        logger?.LogInformation($"Finished !");
     }
 }

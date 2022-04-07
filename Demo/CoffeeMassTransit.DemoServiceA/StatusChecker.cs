@@ -30,7 +30,7 @@ public class StatusChecker : BackgroundService
             if (!responseOKTask.IsCompletedSuccessfully)
             {
                 var responseKO = await responseKOTask;
-                logger?.LogInformation($"Oh no ! He answered '{responseKO.Message.Reason}' !");
+                logger?.LogInformation("Oh no ! He answered '{Reason}' !", responseKO.Message.Reason);
                 continue;
             }
 

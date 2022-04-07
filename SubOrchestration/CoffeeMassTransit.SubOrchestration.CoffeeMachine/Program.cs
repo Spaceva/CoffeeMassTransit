@@ -4,10 +4,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
 using CoffeeMassTransit.Common;
-using CoffeeMassTransit.Core;
 using CoffeeMassTransit.SubOrchestration.Messages;
 using CoffeeMassTransit.Messages;
 using Microsoft.Extensions.Configuration;
+using CoffeeMassTransit.Core.DAL;
 
 namespace CoffeeMassTransit.SubOrchestration.CoffeeStateMachine;
 
@@ -29,11 +29,16 @@ public class Program
     private static void ConfigureServiceCollection(HostBuilderContext hostingContext, IServiceCollection services)
     {
         services.Configure<RabbitMQConfiguration>(hostingContext.Configuration.GetSection("RabbitMQ"));
-        services.AddSingleton<ICoffeeRepository, CoffeeInMemoryRepository>();
+        services.AddRepositoriesInMemory();
         services.AddMassTransit(cfgGlobal =>
         {
             cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
-            cfgGlobal.AddSagaStateMachine<CoffeeStateMachine, CoffeeMachineState>().DapperRepository(hostingContext.Configuration.GetConnectionString("Local"));
+            cfgGlobal.AddSagaStateMachine<CoffeeStateMachine, CoffeeMachineState>().MongoDbRepository(cfgMongo =>
+            {
+                cfgMongo.Connection = "mongodb://sodexo:sodexo@localhost:27017";
+                cfgMongo.DatabaseName = "test-mt";
+                cfgMongo.CollectionName = "sub-orchestration";
+            });
         });
     }
 
@@ -52,7 +57,7 @@ public class Program
         {
             e.ConfigureSagas(registrationContext);
             e.DiscardSkippedMessages();
-           e.DiscardFaultedMessages();
+            e.DiscardFaultedMessages();
         });
         cfgBus.PurgeOnStartup = true;
 

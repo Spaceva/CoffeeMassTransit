@@ -11,9 +11,9 @@ using CoffeeMassTransit.Web;
 using MassTransit;
 using CoffeeMassTransit.Core.DAL;
 using CoffeeMassTransit.Common;
-using CoffeeMassTransit.Core;
 using Microsoft.Extensions.Options;
 using CoffeeMassTransit.Messages;
+using CoffeeMassTransit.DAL.Mongo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,7 +46,7 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
 {
     services.AddControllersWithViews();
     services.Configure<RabbitMQConfiguration>(configuration.GetSection("RabbitMQ"));
-    services.AddSingleton<SqlConnectionFactory>(new LocalSqlConnectionFactory(configuration.GetConnectionString("Local")));
+    services.AddRepositoriesInMongoDB(configuration);
     services.AddMassTransit(cfgGlobal =>
     {
         cfgGlobal.AddConsumer<RequestPaymentCommandConsumer>();
@@ -55,8 +55,6 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     services.AddTransient<OrderService>();
     services.AddTransient<PaymentService>();
     services.AddTransient<CoffeeService>();
-    services.AddSingleton<IPaymentRepository, PaymentDapperRepository>();
-    services.AddSingleton<ICoffeeRepository, CoffeeDapperRepository>();
     services.AddControllersWithViews();
     services.AddHealthChecks();
 }

@@ -1,6 +1,6 @@
 ﻿namespace CoffeeMassTransit.Core.DAL;
 
-public class LocalSqlConnectionFactory : SqlConnectionFactory
+internal class LocalSqlConnectionFactory : SqlConnectionFactory
 {
     public LocalSqlConnectionFactory(string connectionString) : base(connectionString) { }
 }

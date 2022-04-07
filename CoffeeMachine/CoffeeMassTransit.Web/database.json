@@ -1,5 +1,11 @@
 {
   "ConnectionStrings": {
     "Local": "Server=localhost;Database=Webinar;User Id=webinar;Password=webinar;"
+  },
+  "MongoDB": {
+    "ConnectionString": "mongodb://sodexo:sodexo@localhost:27017/",
+    "DatabaseName": "test-mt",
+    "CoffeeCollectionName": "coffees",
+    "PaymentCollectionName": "payments"
   }
 }

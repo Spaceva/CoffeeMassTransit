@@ -31,44 +31,44 @@ public class CoffeeMachineSaga : ISaga,
 
     public async Task Consume(ConsumeContext<OrderSubmittedEvent> context)
     {
-        this.CustomerName = context.Message.CustomerName;
-        this.CoffeeTypeRequested = context.Message.CoffeeType;
-        this.ToppingsRequested = string.Join(",", context.Message.Toppings);
-        this.Amount = CoffeePriceCalculator.Compute(context.Message.CoffeeType, context.Message.Toppings);
+        CustomerName = context.Message.CustomerName;
+        CoffeeTypeRequested = context.Message.CoffeeType;
+        ToppingsRequested = string.Join(",", context.Message.Toppings);
+        Amount = CoffeePriceCalculator.Compute(context.Message.CoffeeType, context.Message.Toppings);
         var sendEndpoint = await context.GetSendEndpoint(requestPaymentEndpoint);
-        await sendEndpoint.Send<RequestPaymentCommand>(new { this.CorrelationId, this.Amount }, context.CancellationToken);
-        this.State = nameof(CoffeeMachineSagaStates.AwaitingPayment);
+        await sendEndpoint.Send<RequestPaymentCommand>(new { CorrelationId, Amount }, context.CancellationToken);
+        State = nameof(CoffeeMachineSagaStates.AwaitingPayment);
     }
 
     public async Task Consume(ConsumeContext<PaymentAcceptedEvent> context)
     {
         var sendEndpoint = await context.GetSendEndpoint(createBaseCoffeeEndpoint);
-        await sendEndpoint.Send<CreateBaseCoffeeCommand>(new { this.CorrelationId, OrderId = this.CorrelationId, CoffeeType = this.CoffeeTypeRequested, NoTopping = string.IsNullOrWhiteSpace(this.ToppingsRequested) }, context.CancellationToken);
-        this.State = nameof(CoffeeMachineSagaStates.Paid);
+        await sendEndpoint.Send<CreateBaseCoffeeCommand>(new { CorrelationId, OrderId = CorrelationId, CoffeeType = CoffeeTypeRequested, NoTopping = string.IsNullOrWhiteSpace(ToppingsRequested) }, context.CancellationToken);
+        State = nameof(CoffeeMachineSagaStates.Paid);
     }
 
     public async Task Consume(ConsumeContext<PaymentRefusedEvent> context)
     {
         var sendEndpoint = await context.GetSendEndpoint(requestPaymentEndpoint);
-        await sendEndpoint.Send<RequestPaymentCommand>(new { this.CorrelationId, this.Amount }, context.CancellationToken);
+        await sendEndpoint.Send<RequestPaymentCommand>(new { CorrelationId, Amount }, context.CancellationToken);
     }
 
     public async Task Consume(ConsumeContext<BaseCoffeeFinishedEvent> context)
     {
-        if (string.IsNullOrWhiteSpace(this.ToppingsRequested))
+        if (string.IsNullOrWhiteSpace(ToppingsRequested))
         {
-            this.State = nameof(CoffeeMachineSagaStates.Ended);
+            State = nameof(CoffeeMachineSagaStates.Ended);
             return;
         }
 
         var sendEndpoint = await context.GetSendEndpoint(addToppingsEndpoint);
-        await sendEndpoint.Send<AddToppingsCommand>(new { this.CorrelationId, Toppings = this.ToppingsRequested.Split(",").Select(t => Enum.Parse<Topping>(t)) }, context.CancellationToken);
-        this.State = nameof(CoffeeMachineSagaStates.BaseCoffeeOK);
+        await sendEndpoint.Send<AddToppingsCommand>(new { CorrelationId, Toppings = ToppingsRequested.Split(",").Select(t => Enum.Parse<Topping>(t)) }, context.CancellationToken);
+        State = nameof(CoffeeMachineSagaStates.BaseCoffeeOK);
     }
 
     public Task Consume(ConsumeContext<ToppingsAddedEvent> context)
     {
-        this.State = nameof(CoffeeMachineSagaStates.Ended);
+        State = nameof(CoffeeMachineSagaStates.Ended);
         return Task.CompletedTask;
     }
 }

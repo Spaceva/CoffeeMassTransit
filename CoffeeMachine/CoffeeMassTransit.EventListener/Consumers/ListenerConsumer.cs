@@ -17,7 +17,7 @@ public abstract class ListenerConsumer<TMessage> : IConsumer<TMessage>
 
     public Task Consume(ConsumeContext<TMessage> context)
     {
-        this.logger?.LogInformation("I saw a {MessageName} ! CorrelationId = {CorrelationId}", context.Message.GetType().Name, context.Message.CorrelationId);
+        logger?.LogInformation("I saw a {MessageName} ! CorrelationId = {CorrelationId}", context.Message.GetType().Name, context.Message.CorrelationId);
         return Task.CompletedTask;
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using CoffeeMassTransit.Contracts;
 
-namespace CoffeeMassTransit.Core;
+namespace CoffeeMassTransit.Core.DAL;
 
 public interface ICoffeeRepository
 {

@@ -16,9 +16,9 @@ public class CheckCoffeeTankCommandConsumer : IConsumer<CheckCoffeeTankCommand>
 
     public async Task Consume(ConsumeContext<CheckCoffeeTankCommand> context)
     {
-        this.logger.LogInformation("Checking Coffee tank...");
+        logger.LogInformation("Checking Coffee tank...");
         await Task.Delay(TimeSpan.FromSeconds(3));
-        this.logger.LogInformation("Coffee tank OK.");
+        logger.LogInformation("Coffee tank OK.");
         await context.Publish<CoffeeTankCheckedEvent>(new { context.Message.CorrelationId });
     }
 }

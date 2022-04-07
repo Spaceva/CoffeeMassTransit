@@ -32,7 +32,12 @@ public class Program
         services.AddMassTransit(cfgGlobal =>
         {
             cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
-            cfgGlobal.AddSagaStateMachine<CoffeeOrderStateMachine, CoffeeOrderState>().DapperRepository(hostingContext.Configuration.GetConnectionString("Local"));
+            cfgGlobal.AddSagaStateMachine<CoffeeOrderStateMachine, CoffeeOrderState>().MongoDbRepository(cfgMongo =>
+            {
+                cfgMongo.Connection = "mongodb://sodexo:sodexo@localhost:27017";
+                cfgMongo.DatabaseName = "test-mt";
+                cfgMongo.CollectionName = "main-orchestration";
+            });
         });
     }
 

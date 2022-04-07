@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CoffeeMassTransit.Contracts;
+using CoffeeMassTransit.Core.DAL;
 
 namespace CoffeeMassTransit.Core;
 
@@ -12,7 +13,10 @@ public class CoffeeInMemoryRepository : ICoffeeRepository
     {
         var coffee = Get(coffeeId);
         if (toppings == null)
+        {
             throw new ArgumentNullException(nameof(toppings));
+        }
+
         coffee.Toppings.AddRange(toppings);
     }
 
@@ -24,7 +28,10 @@ public class CoffeeInMemoryRepository : ICoffeeRepository
     public Coffee Get(Guid coffeeId)
     {
         if (!Data.TryGetValue(coffeeId, out Coffee? coffee))
+        {
             throw new ArgumentOutOfRangeException(nameof(coffeeId));
+        }
+
         return coffee;
     }
 

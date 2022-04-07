@@ -9,10 +9,14 @@ public static class CoffeePriceCalculator
         float price = GetBasePrice(coffeeType);
 
         if (toppings is null)
+        {
             return price;
+        }
 
         foreach (var topping in toppings)
+        {
             price += GetToppingPrice(topping);
+        }
 
         return price;
     }

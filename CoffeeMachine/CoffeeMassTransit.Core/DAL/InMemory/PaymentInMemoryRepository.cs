@@ -21,9 +21,14 @@ public class PaymentInMemoryRepository : IPaymentRepository
         var payment = new Payment { Id = ++currentIndex, Amount = amount, OrderId = orderId, IsValid = true };
         PaymentsByOrderId[orderId].Add(payment);
         if (isNew)
+        {
             ActivePaymentByOrderId.Add(orderId, payment);
+        }
         else
+        {
             ActivePaymentByOrderId[orderId] = payment;
+        }
+
         return currentIndex;
     }
     public void Pay(Guid orderId, string creditcard, string cc)
@@ -41,18 +46,24 @@ public class PaymentInMemoryRepository : IPaymentRepository
     public IReadOnlyCollection<Payment> Get(Guid orderId)
     {
         if (!PaymentsByOrderId.TryGetValue(orderId, out List<Payment>? payment))
+        {
             throw new ArgumentOutOfRangeException(nameof(orderId));
+        }
+
         return payment.ToArray();
     }
 
     public Payment GetActive(Guid orderId)
     {
         if (!ActivePaymentByOrderId.TryGetValue(orderId, out Payment? payment))
+        {
             throw new ArgumentOutOfRangeException(nameof(orderId));
+        }
+
         return payment;
     }
 
-    public IReadOnlyDictionary<Guid, List<Payment>> GetAll()
+    public IReadOnlyDictionary<Guid, List<Payment>> GetAllByOrderId()
     {
         return PaymentsByOrderId;
     }

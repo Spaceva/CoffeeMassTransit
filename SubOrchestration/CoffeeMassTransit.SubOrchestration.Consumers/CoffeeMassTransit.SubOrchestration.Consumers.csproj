@@ -8,9 +8,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MassTransit" Version="8.0.0" />
+		<PackageReference Include="MassTransit" Version="8.0.1" />
 		<PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.3.1" />
-		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.0" />
+		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
@@ -32,6 +32,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\CoffeeMachine\CoffeeMassTransit.Core\CoffeeMassTransit.Core.csproj" />
+		<ProjectReference Include="..\..\CoffeeMachine\CoffeeMassTransit.DAL.Mongo\CoffeeMassTransit.DAL.Mongo.csproj" />
 		<ProjectReference Include="..\..\CoffeeMachine\CoffeeMassTransit.Messages\CoffeeMassTransit.Messages.csproj" />
 		<ProjectReference Include="..\..\CoffeeMassTransit.Common\CoffeeMassTransit.Common.csproj" />
 		<ProjectReference Include="..\CoffeeMassTransit.SubOrchestration.Messages\CoffeeMassTransit.SubOrchestration.Messages.csproj" />

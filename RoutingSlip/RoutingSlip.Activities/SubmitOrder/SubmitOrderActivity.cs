@@ -17,7 +17,7 @@ public class SubmitOrderActivity : IExecuteActivity<SubmitOrderArguments>
     public async Task<ExecutionResult> Execute(ExecuteContext<SubmitOrderArguments> context)
     {
         await Task.Delay(TimeSpan.FromSeconds(3));
-        this.paymentRepository.Create(context.TrackingNumber, context.Arguments.Amount);
+        paymentRepository.Create(context.TrackingNumber, context.Arguments.Amount);
         logger.LogInformation("Order created ({TrackingNumber}, {Amount})", context.TrackingNumber, context.Arguments.Amount);
         return context.Completed();
     }

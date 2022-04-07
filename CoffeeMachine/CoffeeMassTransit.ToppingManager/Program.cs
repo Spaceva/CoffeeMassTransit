@@ -1,11 +1,9 @@
 ﻿using MassTransit;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
 using CoffeeMassTransit.Common;
-using CoffeeMassTransit.Core;
 using CoffeeMassTransit.Core.DAL;
 using CoffeeMassTransit.Messages;
 
@@ -29,8 +27,7 @@ public class Program
     private static void ConfigureServiceCollection(HostBuilderContext hostingContext, IServiceCollection services)
     {
         services.Configure<RabbitMQConfiguration>(hostingContext.Configuration.GetSection("RabbitMQ"));
-        services.AddSingleton<SqlConnectionFactory>(new LocalSqlConnectionFactory(hostingContext.Configuration.GetConnectionString("Local")));
-        services.AddSingleton<ICoffeeRepository, CoffeeDapperRepository>();
+        services.AddRepositoriesInSqlServer(hostingContext.Configuration);
         services.AddMassTransit(cfgGlobal =>
         {
             cfgGlobal.AddConsumer<AddToppingsCommandConsumer>();

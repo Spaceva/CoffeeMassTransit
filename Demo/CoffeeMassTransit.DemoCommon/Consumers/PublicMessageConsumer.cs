@@ -15,7 +15,7 @@ public class PublicMessageConsumer : IConsumer<PublicMessage>
 
     public async Task Consume(ConsumeContext<PublicMessage> context)
     {
-        logger?.LogInformation($"Received public message #{context.Message.MessageId} : {context.Message.Content}");
+        logger?.LogInformation("Received public message #{MessageId} : {Content}", context.Message.MessageId, context.Message.Content);
         await context.Publish<PublicMessageReceived>(new { context.Message.MessageId });
     }
 }

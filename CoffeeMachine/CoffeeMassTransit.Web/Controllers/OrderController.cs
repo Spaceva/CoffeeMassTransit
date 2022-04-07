@@ -30,13 +30,25 @@ public class OrderController : Controller
         {
             var toppings = new List<Topping>();
             if (model.WithCaramel)
+            {
                 toppings.Add(Topping.Caramel);
+            }
+
             if (model.WithChocolate)
+            {
                 toppings.Add(Topping.Chocolate);
+            }
+
             if (model.WithWhippedCream)
+            {
                 toppings.Add(Topping.WhippedCream);
+            }
+
             if (model.WithWhiskey)
+            {
                 toppings.Add(Topping.Whiskey);
+            }
+
             ViewBag.OrderSent = orderService.Submit(new Coffee { Type = model.CoffeeType, Toppings = toppings }, model.Name);
         }
         return View(model);

@@ -22,7 +22,7 @@ public class InformationRequestService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         logger?.LogInformation("Starting...");
-        var sendEndpoint = await this.sendEndpointProvider.GetSendEndpoint(new Uri("queue:serviceB"));
+        var sendEndpoint = await sendEndpointProvider.GetSendEndpoint(new Uri("queue:serviceB"));
         while (!stoppingToken.IsCancellationRequested)
         {
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);

@@ -19,8 +19,8 @@ public class RequestPaymentCommandConsumer : IConsumer<RequestPaymentCommand>
 
     public async Task Consume(ConsumeContext<RequestPaymentCommand> context)
     {
-        this.logger?.LogInformation("Consuming {CommandName} - {CorrelationId}... Waiting 3s", nameof(RequestPaymentCommand), context.Message.CorrelationId);
+        logger?.LogInformation("Consuming {CommandName} - {CorrelationId}... Waiting 3s", nameof(RequestPaymentCommand), context.Message.CorrelationId);
         await Task.Delay(TimeSpan.FromSeconds(3), context.CancellationToken);
-        this.paymentService.Create(context.CorrelationId!.Value, context.Message.Amount);
+        paymentService.Create(context.CorrelationId!.Value, context.Message.Amount);
     }
 }

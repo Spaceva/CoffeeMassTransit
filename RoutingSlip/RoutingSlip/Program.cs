@@ -5,7 +5,6 @@ using RoutingSlip;
 using RoutingSlip.Activities;
 using CoffeeMassTransit.Common;
 using CoffeeMassTransit.Core.DAL;
-using CoffeeMassTransit.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,15 +37,13 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
 {
     services.AddControllersWithViews();
     services.Configure<RabbitMQConfiguration>(configuration.GetSection("RabbitMQ"));
-    services.AddSingleton<SqlConnectionFactory>(new LocalSqlConnectionFactory(configuration.GetConnectionString("Local")));
+    services.AddRepositoriesInSqlServer(configuration);
     services.AddMassTransit(cfgGlobal =>
     {
         cfgGlobal.AddActivitiesFromNamespaceContaining<SubmitOrderActivity>();
         cfgGlobal.AddConsumer<CoffeeRoutingSlipEventsConsumer>();
         cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
     });
-    services.AddSingleton<IPaymentRepository, PaymentInMemoryRepository>();
-    services.AddSingleton<ICoffeeRepository, CoffeeInMemoryRepository>();
     services.AddControllersWithViews();
     services.AddHealthChecks();
     services.AddHostedService<TestActivitiesOrchestrationBackgroundService>();

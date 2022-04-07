@@ -1,4 +1,4 @@
-﻿using CoffeeMassTransit.Core;
+﻿using CoffeeMassTransit.Core.DAL;
 using CoffeeMassTransit.SubOrchestration.Messages;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -19,10 +19,10 @@ public class MakeCoffeeCommandConsumer : IConsumer<MakeCoffeeCommand>
 
     public async Task Consume(ConsumeContext<MakeCoffeeCommand> context)
     {
-        this.logger.LogInformation("Making coffee...");
+        logger.LogInformation("Making coffee...");
         await Task.Delay(TimeSpan.FromSeconds(3));
         coffeeRepository.Create(context.CorrelationId!.Value, context.Message.OrderId, context.Message.CoffeeType, context.Message.NoToppings);
-        this.logger.LogInformation("Done.");
+        logger.LogInformation("Done.");
         await context.Publish<CoffeeMadeEvent>(new { context.Message.CorrelationId });
     }
 }

@@ -16,7 +16,7 @@ public class PaymentController : Controller
     [HttpGet]
     public IActionResult Index(string id)
     {
-        ViewBag.ActivePayment = this.paymentService.GetActive(Guid.Parse(id));
+        ViewBag.ActivePayment = paymentService.GetActive(Guid.Parse(id));
         return View(new PaymentViewModel { OrderId = id});
     }
 
@@ -24,16 +24,16 @@ public class PaymentController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index(PaymentViewModel model)
     {
-        ViewBag.ActivePayment = this.paymentService.GetActive(Guid.Parse(model.OrderId));
+        ViewBag.ActivePayment = paymentService.GetActive(Guid.Parse(model.OrderId));
         try
         {
-            await this.paymentService.Pay(Guid.Parse(model.OrderId), model.CardNumber, model.CC);
-            this.ViewBag.IsPaid = true;
+            await paymentService.Pay(Guid.Parse(model.OrderId), model.CardNumber, model.CC);
+            ViewBag.IsPaid = true;
         }
         catch (Exception ex)
         {
-            this.ViewBag.Error = ex.Message;
-            this.ViewBag.IsPaid = false;
+            ViewBag.Error = ex.Message;
+            ViewBag.IsPaid = false;
         }
         return View(model);
     }

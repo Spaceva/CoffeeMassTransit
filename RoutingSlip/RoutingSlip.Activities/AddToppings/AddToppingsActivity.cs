@@ -1,4 +1,4 @@
-﻿using CoffeeMassTransit.Core;
+﻿using CoffeeMassTransit.Core.DAL;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 

@@ -16,8 +16,8 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        var payments = this.paymentService.GetAll();
-        var coffee = this.coffeeService.GetAll().ToDictionary(c => c.OrderId);
+        var payments = paymentService.GetAll();
+        var coffee = coffeeService.GetAll().ToDictionary(c => c.OrderId);
         ViewBag.Coffees = coffee;
         ViewBag.Payments = payments;
         ViewBag.Orders = coffee.Keys.ToArray().Union(payments.Keys.ToArray()).ToArray();

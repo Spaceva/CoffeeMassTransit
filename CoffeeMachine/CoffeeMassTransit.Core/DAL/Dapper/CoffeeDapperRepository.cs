@@ -6,7 +6,7 @@ using CoffeeMassTransit.Contracts;
 
 namespace CoffeeMassTransit.Core.DAL;
 
-public class CoffeeDapperRepository : ICoffeeRepository
+internal class CoffeeDapperRepository : ICoffeeRepository
 {
     private readonly SqlConnectionFactory sqlConnectionFactory;
 

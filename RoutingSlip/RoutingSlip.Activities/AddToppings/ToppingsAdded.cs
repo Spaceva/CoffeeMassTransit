@@ -1,5 +1,4 @@
-﻿using CoffeeMassTransit.Contracts;
-using MassTransit;
+﻿using MassTransit;
 
 namespace RoutingSlip.Activities;
 
