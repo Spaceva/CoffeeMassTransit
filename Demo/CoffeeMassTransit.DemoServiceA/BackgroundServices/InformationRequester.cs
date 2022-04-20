@@ -8,12 +8,12 @@ using CoffeeMassTransit.DemoCommon;
 
 namespace CoffeeMassTransit.DemoServiceA;
 
-public class InformationRequestService : BackgroundService
+public class InformationRequester : BackgroundService
 {
     private readonly ISendEndpointProvider sendEndpointProvider;
-    private readonly ILogger<InformationRequestService> logger;
+    private readonly ILogger<InformationRequester> logger;
 
-    public InformationRequestService(ISendEndpointProvider sendEndpointProvider, ILogger<InformationRequestService> logger)
+    public InformationRequester(ISendEndpointProvider sendEndpointProvider, ILogger<InformationRequester> logger)
     {
         this.sendEndpointProvider = sendEndpointProvider;
         this.logger = logger;

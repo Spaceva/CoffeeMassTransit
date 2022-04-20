@@ -1,0 +1,7 @@
+{
+  "AzureServiceBus": {
+    "DomainName": "",
+    "SharedAccessKeyName": "",
+    "SharedAccessKey": ""
+  }
+}

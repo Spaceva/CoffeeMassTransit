@@ -24,6 +24,11 @@ public static class HostExtensions
         return builder.ConfigureAppConfiguration(config => config.AddJsonFile("rabbitmq.json", optional: true, reloadOnChange: true));
     }
 
+    public static IHostBuilder AddAzureServiceBusConfigurationFile(this IHostBuilder builder)
+    {
+        return builder.ConfigureAppConfiguration(config => config.AddJsonFile("azure-service-bus.json", optional: true, reloadOnChange: true));
+    }
+
     public static IHostBuilder AddDatabaseConfigurationFile(this IHostBuilder builder)
     {
         return builder.ConfigureAppConfiguration(config => config.AddJsonFile("database.json", optional: true, reloadOnChange: true));

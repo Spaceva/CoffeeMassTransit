@@ -18,7 +18,7 @@ public class FaultedInformationRequestConsumer : IConsumer<Fault<InformationRequ
     public async Task Consume(ConsumeContext<Fault<InformationRequest>> context)
     {
         logger?.LogInformation($"So there was an error.. ok");
-        var sendEndpoint = await context.GetSendEndpoint(new Uri("exchange:serviceA"));
+        var sendEndpoint = await context.GetSendEndpoint(new Uri("queue:serviceA"));
         await sendEndpoint.Send<AccessDenied>(new { });
     }
 }

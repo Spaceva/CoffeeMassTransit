@@ -2,7 +2,7 @@
 
 namespace CoffeeMassTransit.Common.AuditedStateMachine;
 
-public class Step
+public class StateHistoryStep
 {
     public DateTime TimeStamp { get; set; }
 

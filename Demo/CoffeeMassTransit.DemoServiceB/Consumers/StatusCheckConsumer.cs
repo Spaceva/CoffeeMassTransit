@@ -20,7 +20,6 @@ public class StatusCheckConsumer : IConsumer<StatusCheck>
         logger?.LogInformation("I'm asked how I feel !");
         if (DateTime.Now.Second % 3 == 0)
         {
-
             logger?.LogInformation("I'm not so sure...");
             await context.RespondAsync<StatusNOKResponse>(new { Reason = "I'm not so sure..." }); 
             return;

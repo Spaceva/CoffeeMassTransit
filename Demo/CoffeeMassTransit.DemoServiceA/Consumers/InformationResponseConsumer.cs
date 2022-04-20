@@ -5,7 +5,7 @@ using CoffeeMassTransit.DemoCommon;
 
 namespace CoffeeMassTransit.DemoServiceA;
 
-public class InformationResponseConsumer : IConsumer<InformationResponse>
+public class InformationResponseConsumer : IConsumer<InformationResponse>, IConsumer<Fault<InformationRequest>>
 {
     private readonly ILogger<InformationResponseConsumer> logger;
 
@@ -17,6 +17,12 @@ public class InformationResponseConsumer : IConsumer<InformationResponse>
     public Task Consume(ConsumeContext<InformationResponse> context)
     {
         logger?.LogInformation("Received the information !");
+        return Task.CompletedTask;
+    }
+
+    public Task Consume(ConsumeContext<Fault<InformationRequest>> context)
+    {
+        logger?.LogInformation("Information was NOT provided");
         return Task.CompletedTask;
     }
 }

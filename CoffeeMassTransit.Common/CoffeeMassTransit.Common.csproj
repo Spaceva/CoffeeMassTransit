@@ -6,9 +6,22 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="azure-service-bus.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="azure-service-bus.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="MassTransit" Version="8.0.1" />
 		<PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.3.1" />
 		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.1" />
+		<PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />

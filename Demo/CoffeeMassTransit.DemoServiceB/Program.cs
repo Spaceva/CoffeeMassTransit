@@ -20,50 +20,42 @@ public class Program
         Host.CreateDefaultBuilder(args)
             .AddLoggingConfigurationFile()
             .AddRabbitMQConfigurationFile()
+            .AddAzureServiceBusConfigurationFile()
             .ConfigureServices(ConfigureServiceCollection)
             .ConfigureSerilog();
 
     private static void ConfigureServiceCollection(HostBuilderContext hostingContext, IServiceCollection services)
     {
-        services.Configure<RabbitMQConfiguration>(hostingContext.Configuration.GetSection("RabbitMQ"));
-        services.AddMassTransit(cfgGlobal =>
-        {
-            cfgGlobal.AddConsumer<PublicMessageConsumer>().Endpoint(e =>
-            {
-                e.Name = $"name-i-picked-for-{nameof(PublicMessageConsumer)}";
-            });
-            cfgGlobal.AddConsumer<PublicMessageReceivedConsumer>().Endpoint(e =>
-            {
-                e.Name = $"name-i-picked-for-{nameof(PublicMessageReceivedConsumer)}";
-            });
-            cfgGlobal.AddConsumer<FaultedInformationRequestConsumer>().Endpoint(e =>
-            {
-                e.Name = $"name-i-picked-for-{nameof(FaultedInformationRequestConsumer)}";
-            });
-            cfgGlobal.AddConsumer<InformationRequestConsumer>().Endpoint(e =>
-            {
-                e.Name = $"name-i-picked-for-{nameof(InformationRequestConsumer)}";
-            });
-            cfgGlobal.AddConsumer<StatusCheckConsumer>().Endpoint(e =>
-            {
-                e.Name = $"name-i-picked-for-{nameof(StatusCheckConsumer)}";
-            });
-            cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
-        });
+        // => services.AddMassTransitWithRabbitMQ(hostingContext.Configuration, RegisterConsumers, ConfigureRabbitMQ);
+        services.AddMassTransitWithAzureServiceBus(hostingContext.Configuration, RegisterConsumers, ConfigureAzureServiceBus);
         services.AddHostedService<PublicMessageSpammer>();
     }
 
+    private static void RegisterConsumers(IBusRegistrationConfigurator cfgGlobal)
+    {
+        cfgGlobal.AddConsumer<PublicMessageConsumer>().Endpoint(e =>
+        {
+            e.Name = $"Name-i-picked-for-{nameof(PublicMessageConsumer)}";
+        });
+        cfgGlobal.AddConsumer<PublicMessageReceivedConsumer>().Endpoint(e =>
+        {
+            e.Name = $"Name-i-picked-for-{nameof(PublicMessageReceivedConsumer)}";
+        });
+        cfgGlobal.AddConsumer<FaultedInformationRequestConsumer>().Endpoint(e =>
+        {
+            e.Name = $"Name-i-picked-for-{nameof(FaultedInformationRequestConsumer)}";
+        });
+        cfgGlobal.AddConsumer<InformationRequestConsumer>().Endpoint(e =>
+        {
+            e.Name = $"Name-i-picked-for-{nameof(InformationRequestConsumer)}";
+        });
+        cfgGlobal.AddConsumer<StatusCheckConsumer>().Endpoint(e =>
+        {
+            e.Name = $"Name-i-picked-for-{nameof(StatusCheckConsumer)}";
+        });
+    }
     private static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabbitMqBusFactoryConfigurator cfgBus)
     {
-        var rabbitMQConfigurationOption = registrationContext.GetRequiredService<IOptions<RabbitMQConfiguration>>();
-        var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
-
-        cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
-        {
-            cfgRabbitMq.Username(rabbitMQConfiguration.Username);
-            cfgRabbitMq.Password(rabbitMQConfiguration.Password);
-        });
-
         cfgBus.ReceiveEndpoint("serviceB", cfgEndpoint =>
         {
             cfgEndpoint.ConfigureConsumers(registrationContext);
@@ -72,6 +64,20 @@ public class Program
                 cfgRetry.Interval(2, TimeSpan.FromMilliseconds(500));
             });
             cfgEndpoint.PurgeOnStartup = true;
+        });
+
+        cfgBus.ConfigureMessagesTopology();
+    }
+    
+    private static void ConfigureAzureServiceBus(IBusRegistrationContext registrationContext, IServiceBusBusFactoryConfigurator cfgBus)
+    {
+        cfgBus.ReceiveEndpoint("serviceB", cfgEndpoint =>
+        {
+            cfgEndpoint.ConfigureConsumers(registrationContext);
+            /*cfgEndpoint.UseMessageRetry(cfgRetry =>
+            {
+                cfgRetry.Interval(2, TimeSpan.FromMilliseconds(500));
+            });*/
         });
 
         cfgBus.ConfigureMessagesTopology();

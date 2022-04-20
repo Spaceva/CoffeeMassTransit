@@ -23,7 +23,7 @@ public class InformationRequestConsumer : IConsumer<InformationRequest>
             logger?.LogInformation("Nope ! Won't happen...");
             throw new Exception("Denying request");
         }
-        var sendEndpoint = await context.GetSendEndpoint(new Uri("exchange:serviceA"));
+        var sendEndpoint = await context.GetSendEndpoint(new Uri("queue:serviceA"));
         await sendEndpoint.Send<InformationResponse>(new { });
         logger?.LogInformation("Answered !");
     }

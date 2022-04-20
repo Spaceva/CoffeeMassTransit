@@ -20,32 +20,38 @@ public class Program
         Host.CreateDefaultBuilder(args)
             .AddLoggingConfigurationFile()
             .AddRabbitMQConfigurationFile()
+            .AddAzureServiceBusConfigurationFile()
             .ConfigureServices(ConfigureServiceCollection)
             .ConfigureSerilog();
 
     private static void ConfigureServiceCollection(HostBuilderContext hostingContext, IServiceCollection services)
     {
-        services.Configure<RabbitMQConfiguration>(hostingContext.Configuration.GetSection("RabbitMQ"));
-        services.AddMassTransit(cfgGlobal =>
+        /*services.AddMassTransitWithRabbitMQ(hostingContext.Configuration, cfgGlobal =>
         {
-            cfgGlobal.UsingRabbitMq(ConfigureRabbitMQ);
             cfgGlobal.AddConsumersFromNamespaceContaining<PublicMessageConsumer>();
             cfgGlobal.AddConsumersFromNamespaceContaining<InformationResponseConsumer>();
+        }, ConfigureRabbitMQ);*/
+        services.AddMassTransitWithAzureServiceBus(hostingContext.Configuration, cfgGlobal =>
+        {
+            cfgGlobal.AddConsumersFromNamespaceContaining<PublicMessageConsumer>();
+            cfgGlobal.AddConsumersFromNamespaceContaining<InformationResponseConsumer>();
+        }, ConfigureAzureServiceBus);
+        services.AddHostedService<InformationRequester>();
+        // services.AddHostedService<StatusChecker>();
+    }
+
+    private static void ConfigureAzureServiceBus(IBusRegistrationContext registrationContext, IServiceBusBusFactoryConfigurator cfgBus)
+    {
+        cfgBus.ReceiveEndpoint("serviceA", cfgEndpoint =>
+        {
+            cfgEndpoint.ConfigureConsumers(registrationContext);
         });
-        services.AddHostedService<InformationRequestService>();
+
+        cfgBus.ConfigureMessagesTopology();
     }
 
     private static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabbitMqBusFactoryConfigurator cfgBus)
     {
-        var rabbitMQConfigurationOption = registrationContext.GetRequiredService<IOptions<RabbitMQConfiguration>>();
-        var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
-
-        cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
-        {
-            cfgRabbitMq.Username(rabbitMQConfiguration.Username);
-            cfgRabbitMq.Password(rabbitMQConfiguration.Password);
-        });
-
         cfgBus.ReceiveEndpoint("serviceA", cfgEndpoint =>
         {
             cfgEndpoint.ConfigureConsumers(registrationContext);

@@ -3,9 +3,8 @@ using System;
 using System.Collections.Generic;
 
 namespace CoffeeMassTransit.Common.AuditedStateMachine;
-public static class StateMachineExtensions
+public static class EventActivityBinderExtensions
 {
-
     public static EventActivityBinder<TSaga, TData> SaveInput<TSaga, TData, TInput>(this EventActivityBinder<TSaga, TData> binder, Func<TData, TInput> mapToInput)
         where TSaga : AuditedState<TInput>, ISaga
         where TData : class
@@ -21,7 +20,7 @@ public static class StateMachineExtensions
      {
          var now = DateTime.UtcNow;
          x.Saga.StartTime = now;
-         x.Saga.History = new List<Step> { new Step { TimeStamp = now, StateAfter = toState.Name, EventName = x.Message.GetType().Name } };
+         x.Saga.History = new List<StateHistoryStep> { new StateHistoryStep { TimeStamp = now, StateAfter = toState.Name, EventName = x.Message.GetType().Name } };
      })
                .TransitionTo(toState);
 
@@ -32,7 +31,7 @@ public static class StateMachineExtensions
      {
          var now = DateTime.UtcNow;
          x.Saga.EndTime = now;
-         x.Saga.History.Add(new Step { TimeStamp = now, StateAfter = x.StateMachine.Final.Name, EventName = x.Message.GetType().Name });
+         x.Saga.History.Add(new StateHistoryStep { TimeStamp = now, StateAfter = x.StateMachine.Final.Name, EventName = x.Message.GetType().Name });
      })
               .Finalize();
 
@@ -41,7 +40,7 @@ public static class StateMachineExtensions
         where TData : class
      => binder.Then(x =>
      {
-         x.Saga.History.Add(new Step { TimeStamp = DateTime.UtcNow, StateAfter = toState.Name, EventName = x.Message.GetType().Name });
+         x.Saga.History.Add(new StateHistoryStep { TimeStamp = DateTime.UtcNow, StateAfter = toState.Name, EventName = x.Message.GetType().Name });
      })
               .TransitionTo(toState);
 
@@ -50,6 +49,6 @@ public static class StateMachineExtensions
         where TData : class
      => binder.Then(x =>
      {
-         x.Saga.History.Add(new Step { TimeStamp = DateTime.UtcNow, EventName = x.Message.GetType().Name });
+         x.Saga.History.Add(new StateHistoryStep { TimeStamp = DateTime.UtcNow, EventName = x.Message.GetType().Name });
      });
 }

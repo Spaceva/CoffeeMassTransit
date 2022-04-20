@@ -3,7 +3,7 @@
 namespace CoffeeMassTransit.DemoCommon.Extensions;
 public static class BusConfigurationExtensions
 {
-    public static void ConfigureMessagesTopology(this IRabbitMqBusFactoryConfigurator cfgBus)
+    public static void ConfigureMessagesTopology(this IBusFactoryConfigurator cfgBus)
     {
         cfgBus.Message<PublicMessage>(x =>
         {
@@ -38,6 +38,10 @@ public static class BusConfigurationExtensions
         cfgBus.Message<InformationRequest>(x =>
         {
             x.SetEntityName($"Name-I-Picked-For-{nameof(InformationRequest)}");
+        });
+        cfgBus.Send<InformationRequest>(c =>
+        {
+            c.UseRoutingKeyFormatter(c => "RK-InformationRequest");
         });
 
         cfgBus.Message<Fault<InformationRequest>>(x =>
