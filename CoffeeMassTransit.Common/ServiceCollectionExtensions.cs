@@ -7,23 +7,16 @@ using Microsoft.Extensions.Options;
 namespace CoffeeMassTransit.Common;
 public static class ServiceCollectionExtensions
 {
-    public static void ConfigureAzureServiceBus(this IServiceCollection services)
-    => services.AddOptions<AzureServiceBusConfiguration>().Configure<IConfiguration>((settings, configuration) => configuration.Bind("AzureServiceBus", settings));
-
-    public static IServiceCollection ConfigureAzureServiceBus(this IServiceCollection services, IConfiguration configuration)
-        => services.Configure<AzureServiceBusConfiguration>(configuration.GetSection("AzureServiceBus"));
-
-
     public static IServiceCollection AddMassTransitWithRabbitMQ(this IServiceCollection services, IConfiguration configuration, Action<IBusRegistrationConfigurator>? configureMassTransit = null, Action<IBusRegistrationContext, IRabbitMqBusFactoryConfigurator>? configureBus = null)
     {
-        services.Configure<RabbitMQConfiguration>(configuration.GetSection("RabbitMQ"));
+        services.ConfigureRabbitMQ(configuration);
         return services.AddMassTransit(cfgMassTransit =>
         {
             cfgMassTransit.UsingRabbitMq((registrationContext, cfgBus) =>
             {
                 var rabbitMQConfigurationOption = registrationContext.GetRequiredService<IOptions<RabbitMQConfiguration>>();
-                var rabbitMQConfiguration = rabbitMQConfigurationOption.Value;
-                cfgBus.Host(new Uri($"rabbitmq://{rabbitMQConfiguration.Host}/{rabbitMQConfiguration.VirtualHost}"), cfgRabbitMq =>
+                var rabbitMQConfiguration = rabbitMQConfigurationOption!.Value;
+                cfgBus.Host(new Uri(rabbitMQConfiguration.Uri), cfgRabbitMq =>
                 {
                     cfgRabbitMq.Username(rabbitMQConfiguration.Username);
                     cfgRabbitMq.Password(rabbitMQConfiguration.Password);
@@ -57,4 +50,8 @@ public static class ServiceCollectionExtensions
         });
     }
 
+    private static IServiceCollection ConfigureAzureServiceBus(this IServiceCollection services, IConfiguration configuration)
+        => services.Configure<AzureServiceBusConfiguration>(configuration.GetSection("AzureServiceBus"));
+    private static IServiceCollection ConfigureRabbitMQ(this IServiceCollection services, IConfiguration configuration)
+        => services.Configure<RabbitMQConfiguration>(configuration.GetSection("RabbitMQ"));
 }

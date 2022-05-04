@@ -26,18 +26,12 @@ public class Program
 
     private static void ConfigureServiceCollection(HostBuilderContext hostingContext, IServiceCollection services)
     {
-        /*services.AddMassTransitWithRabbitMQ(hostingContext.Configuration, cfgGlobal =>
-        {
-            cfgGlobal.AddConsumersFromNamespaceContaining<PublicMessageConsumer>();
-            cfgGlobal.AddConsumersFromNamespaceContaining<InformationResponseConsumer>();
-        }, ConfigureRabbitMQ);*/
         services.AddMassTransitWithAzureServiceBus(hostingContext.Configuration, cfgGlobal =>
         {
             cfgGlobal.AddConsumersFromNamespaceContaining<PublicMessageConsumer>();
             cfgGlobal.AddConsumersFromNamespaceContaining<InformationResponseConsumer>();
         }, ConfigureAzureServiceBus);
         services.AddHostedService<InformationRequester>();
-        // services.AddHostedService<StatusChecker>();
     }
 
     private static void ConfigureAzureServiceBus(IBusRegistrationContext registrationContext, IServiceBusBusFactoryConfigurator cfgBus)

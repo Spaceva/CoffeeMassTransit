@@ -26,7 +26,7 @@ public class Program
 
     private static void ConfigureServiceCollection(HostBuilderContext hostingContext, IServiceCollection services)
     {
-        // => services.AddMassTransitWithRabbitMQ(hostingContext.Configuration, RegisterConsumers, ConfigureRabbitMQ);
+        services.AddMassTransitWithRabbitMQ(hostingContext.Configuration, RegisterConsumers, ConfigureRabbitMQ);
         services.AddMassTransitWithAzureServiceBus(hostingContext.Configuration, RegisterConsumers, ConfigureAzureServiceBus);
         services.AddHostedService<PublicMessageSpammer>();
     }
@@ -54,7 +54,22 @@ public class Program
             e.Name = $"Name-i-picked-for-{nameof(StatusCheckConsumer)}";
         });
     }
+
     private static void ConfigureRabbitMQ(IBusRegistrationContext registrationContext, IRabbitMqBusFactoryConfigurator cfgBus)
+    {
+        ConfigureEndpoints(registrationContext, cfgBus);
+
+        cfgBus.ConfigureMessagesTopology();
+    }
+    
+    private static void ConfigureAzureServiceBus(IBusRegistrationContext registrationContext, IServiceBusBusFactoryConfigurator cfgBus)
+    {
+        ConfigureEndpoints(registrationContext, cfgBus);
+
+        cfgBus.ConfigureMessagesTopology();
+    }
+
+    private static void ConfigureEndpoints(IBusRegistrationContext registrationContext, IReceiveConfigurator cfgBus)
     {
         cfgBus.ReceiveEndpoint("serviceB", cfgEndpoint =>
         {
@@ -63,23 +78,6 @@ public class Program
             {
                 cfgRetry.Interval(2, TimeSpan.FromMilliseconds(500));
             });
-            cfgEndpoint.PurgeOnStartup = true;
         });
-
-        cfgBus.ConfigureMessagesTopology();
-    }
-    
-    private static void ConfigureAzureServiceBus(IBusRegistrationContext registrationContext, IServiceBusBusFactoryConfigurator cfgBus)
-    {
-        cfgBus.ReceiveEndpoint("serviceB", cfgEndpoint =>
-        {
-            cfgEndpoint.ConfigureConsumers(registrationContext);
-            /*cfgEndpoint.UseMessageRetry(cfgRetry =>
-            {
-                cfgRetry.Interval(2, TimeSpan.FromMilliseconds(500));
-            });*/
-        });
-
-        cfgBus.ConfigureMessagesTopology();
     }
 }

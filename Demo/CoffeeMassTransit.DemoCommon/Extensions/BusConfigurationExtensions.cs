@@ -39,10 +39,6 @@ public static class BusConfigurationExtensions
         {
             x.SetEntityName($"Name-I-Picked-For-{nameof(InformationRequest)}");
         });
-        cfgBus.Send<InformationRequest>(c =>
-        {
-            c.UseRoutingKeyFormatter(c => "RK-InformationRequest");
-        });
 
         cfgBus.Message<Fault<InformationRequest>>(x =>
         {
